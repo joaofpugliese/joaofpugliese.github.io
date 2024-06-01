@@ -56,12 +56,22 @@ layout: default
       {% include latest_posts.liquid %}
     {% endif %}
 
-    <!-- Selected papers -->
-    {% if page.selected_papers %}
-      <h2>
-        <a href="{{ '/publications/' | relative_url }}" style="color: inherit">selected publications</a>
-      </h2>
-      {% include selected_papers.liquid %}
+    <!-- Publications -->
+    {% if page.publications %}
+      <h2 class="section-spacing">Publications</h2>
+      {% include publications.liquid %}
+    {% endif %}
+
+    <!-- Working papers -->
+    {% if page.working_papers %}
+      <h2 class="section-spacing">Working papers</h2>
+      {% include working_papers.liquid %}
+    {% endif %}
+
+    <!-- Work in Progress -->
+    {% if page.work_in_progress %}
+      <h2 class="section-spacing">Work in Progress</h2>
+      {% include work_in_progress.liquid %}
     {% endif %}
 
     <!-- Social -->
