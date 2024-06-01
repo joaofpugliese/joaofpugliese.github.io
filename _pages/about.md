@@ -9,12 +9,12 @@ profile:
   image: prof_pic.jpg
   image_circular: false # crops the image to make it circular
   more_info: >
-    <p>579 Serra Mall</p>
+    <p>579 Serra Mall</p>,
     <p>Stanford, CA</p>
 
 news: false # includes a list of news items
 selected_papers: false # includes a list of papers marked as "selected={true}"
-social: false # includes social icons at the bottom of the page
+social: true # includes social icons at the bottom of the page
 ---
 
 I am a Ph.D. candidate in Economics at Stanford University. I obtained my undergraduate and Master's degree at the Sao Paulo School of Economics (FGV-SP). 
