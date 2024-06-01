@@ -20,10 +20,11 @@ layout: page
           {% if profile.more_info %}
             <div class="more-info">
               {{ profile.more_info }}
-              {% if profile.cv %}
-                <br>
-                <a href="{{ site.baseurl }}/assets/pdf/{{ profile.cv }}" target="_blank">[CV]</a>
-              {% endif %}
+            </div>
+          {% endif %}
+          {% if profile.cv %}
+            <div class="cv-link">
+              <a href="{{ site.baseurl }}/assets/pdf/{{ profile.cv }}" target="_blank">[CV]</a>
             </div>
           {% endif %}
         </div>
