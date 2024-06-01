@@ -18,7 +18,13 @@ layout: page
             {% include figure.liquid loading="eager" path=profile_image_path class=profile_image_class sizes=sizes alt=profile.image %}
           {% endif %}
           {% if profile.more_info %}
-            <div class="more-info">{{ profile.more_info }}</div>
+            <div class="more-info">
+              {{ profile.more_info }}
+              {% if profile.cv %}
+                <br>
+                <a href="{{ site.baseurl }}/assets/{{ profile.cv }}" target="_blank">[CV]</a>
+              {% endif %}
+            </div>
           {% endif %}
         </div>
 
