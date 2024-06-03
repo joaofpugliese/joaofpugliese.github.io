@@ -2,7 +2,7 @@
 layout: about
 title: about
 permalink: /
-subtitle: Stanford University
+subtitle: 
 
 profile:
   align: left
@@ -12,7 +12,7 @@ profile:
 news: false # includes a list of news items
 publications: false
 working_papers: true
-work_in_progress: true
+work_in_progress: false
 social: true # includes social icons at the bottom of the page
 ---
 
