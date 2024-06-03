@@ -55,25 +55,35 @@ layout: default
       </h2>
       {% include latest_posts.liquid %}
     {% endif %}
-
+    
     <!-- Publications -->
-    {% if page.publications %}
-      <h2 class="section-spacing">Publications</h2>
-      {% include publications.liquid %}
-    {% endif %}
+    <h2 class="section-spacing">Publications</h2>
+    <ul>
+      <li>Publication 1: Description of publication 1.</li>
+      <li>Publication 2: Description of publication 2.</li>
+      <!-- Add more publications as needed -->
+    </ul>
 
     <!-- Working papers -->
-    {% if page.working_papers %}
-      <h2 class="section-spacing">Working papers</h2>
-      {% include working_papers.liquid %}
-    {% endif %}
+    <h2 class="section-spacing">Working papers</h2>
+    <ul>
+      <li>
+        <strong>Can income targeting be explained by dynamic sample selection?</strong><br>
+        P. Bessone, and J. Pugliese<br>
+        Working Paper, Jul 2021<br>
+        <a href="path/to/pdf" class="pdf-link" style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 5px; text-decoration: none;">PDF</a>
+      </li>
+      <li>Working Paper 2: Description of working paper 2.</li>
+      <!-- Add more working papers as needed -->
+    </ul>
 
     <!-- Work in Progress -->
-    {% if page.work_in_progress %}
-      <h2 class="section-spacing">Work in Progress</h2>
-      <div class="working-papers" style="text-align: left;">
-      {% include work_in_progress.liquid %}
-    {% endif %}
+    <h2 class="section-spacing">Work in Progress</h2>
+    <ul>
+      <li>Work in Progress 1: Description of work in progress 1.</li>
+      <li>Work in Progress 2: Description of work in progress 2.</li>
+      <!-- Add more work in progress as needed -->
+    </ul>
 
     <!-- Social -->
     {% if page.social %}
