@@ -57,33 +57,42 @@ layout: default
     {% endif %}
     
     <!-- Publications -->
+    {% if page.publications %}
     <h2 class="section-spacing">Publications</h2>
     <ul>
       <li>Publication 1: Description of publication 1.</li>
       <li>Publication 2: Description of publication 2.</li>
       <!-- Add more publications as needed -->
     </ul>
+    {% endif %}
 
     <!-- Working papers -->
+    {% if page.working_papers %}    
     <h2 class="section-spacing">Working papers</h2>
     <ul>
-      <li>
-        <strong>Can income targeting be explained by dynamic sample selection?</strong><br>
-        P. Bessone, and J. Pugliese<br>
-        Working Paper, Jul 2021<br>
-        <a href="path/to/pdf" class="pdf-link" style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 5px; text-decoration: none;">PDF</a>
+      <li style="margin-bottom: 15px;">
+        <strong>Can income targeting be explained by dynamic sample selection?</strong> July 2021 
+        <br>(with Pedro Bessone)<br>
+        <a href="assets/pdf/BP.pdf" class="pdf-link" style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 5px; text-decoration: none;">PDF</a>
+      </li>    
+      <li style="margin-bottom: 15px;">
+        <strong>Blue spoons: sparking communication about appropriate technology use</strong> September 2022 
+        <br>(with Arun Chandrasekhar, Esther Duflo, Michael Kremer, Jon Robinson, and Frank Schilbach)<br>
+        <a href="assets/pdf/CDKPRS.pdf" class="pdf-link" style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 5px; text-decoration: none;">PDF</a>
       </li>
-      <li>Working Paper 2: Description of working paper 2.</li>
       <!-- Add more working papers as needed -->
     </ul>
+    {% endif %}
 
     <!-- Work in Progress -->
+    {% if page.work_in_progress %}        
     <h2 class="section-spacing">Work in Progress</h2>
     <ul>
       <li>Work in Progress 1: Description of work in progress 1.</li>
       <li>Work in Progress 2: Description of work in progress 2.</li>
       <!-- Add more work in progress as needed -->
     </ul>
+    {% endif %}
 
     <!-- Social -->
     {% if page.social %}
