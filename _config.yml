@@ -2,7 +2,7 @@
 # Site settings
 # -----------------------------------------------------------------------------
 
-title: Stanford University # the website title (if blank, full name will be used instead)
+title: # the website title (if blank, full name will be used instead)
 first_name: João
 middle_name: F.
 last_name: Pugliese
