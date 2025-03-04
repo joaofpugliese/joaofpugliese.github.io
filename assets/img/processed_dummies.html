@@ -6,7 +6,13 @@
     <title>Interactive Dummies</title>
 </head>
 <body>
-    <embed id="dummiesSvg" src="processed_dummies_5_by_40.svg" type="image/svg+xml" width="320" height="64">
+    <embed
+    id="dummiesSvg"
+    src="processed_dummies_5_by_40.svg"
+    type="image/svg+xml"
+    width="100%"
+    height="64"
+    style="border:none; overflow:hidden;">
     <script>
         window.addEventListener("message", function(event) {
             if (event.origin !== "https://stanforduniversity.qualtrics.com") return; // Security check
