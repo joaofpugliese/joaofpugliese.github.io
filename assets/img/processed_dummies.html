@@ -4,15 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Dummies</title>
+    <style>
+        html, body {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          overflow: hidden; /* Hide any scroll that might appear inside the child */
+        }
+    </style>    
 </head>
 <body>
     <embed
     id="dummiesSvg"
     src="processed_dummies_5_by_40.svg"
     type="image/svg+xml"
-    width="100%"
+    width="320"
     height="64"
-    style="border:none; overflow:hidden;">
+    style="border:none; display:block;"
+  >
     <script>
         window.addEventListener("message", function(event) {
             if (event.origin !== "https://stanforduniversity.qualtrics.com") return; // Security check
