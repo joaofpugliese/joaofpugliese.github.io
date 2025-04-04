@@ -9,8 +9,6 @@
   images:
     - src: /assets/images/customized-slider-example1.png
       caption: Slider with customized thumb and tick marks.
-    - src: /assets/images/customized-slider-example2.png
-      caption: Embedded Data capture after user input.
 
 - id: video-embedding-with-data-tracking
   title: Video Embedding with Data Tracking
@@ -20,6 +18,3 @@
     This script shows how to embed videos into a Qualtrics survey, optionally use a custom thumbnail, and capture user interaction like play events or completion events using Embedded Data fields.
   files:
     - video-embed-with-tracking.txt
-  images:
-    - src: /assets/images/video-thumbnail-example.png
-      caption: Example of a video with a custom poster image.
