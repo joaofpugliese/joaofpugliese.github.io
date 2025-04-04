@@ -21,16 +21,13 @@ This page collects small scripts and code snippets for enhancing Qualtrics surve
 </tr>
 </thead>
 <tbody>
+{% for resource in site.data.qualtrics-resources %}
 <tr>
-<td><a href="#customized-sliders">Customized Sliders</a></td>
-<td>JavaScript</td>
-<td>Custom-styled Qualtrics sliders keeping native styles, including tick marks and embedded data saving.</td>
+<td><a href="#{{ resource.id }}">{{ resource.title }}</a></td>
+<td>{{ resource.functionality }}</td>
+<td>{{ resource.summary }}</td>
 </tr>
-<tr>
-<td><a href="#video-embedding-with-data-tracking">Video Embedding with Data Tracking</a></td>
-<td>HTML, JavaScript</td>
-<td>Embed videos with optional thumbnails and capture participant interactions.</td>
-</tr>
+{% endfor %}
 </tbody>
 </table>
 
@@ -38,8 +35,28 @@ This page collects small scripts and code snippets for enhancing Qualtrics surve
 
 ### Customizable sliders with default styling
 
-**Description**:
-This script customizes Qualtrics sliders, preserving native styling.
+{% for resource in site.data.qualtrics-resources %}
+
+### {{ resource.title }} {#{{ resource.id }}}
+
+**Description**:  
+{{ resource.long_description }}
 
 - **Resources**:
-  - [Download customized-slider.txt](../assets/qualtrics-resources/customized-slider.txt)
+  {% for file in resource.files %}
+    - [Download {{ file }}](../assets/qualtrics-resources/{{ file }})
+  {% endfor %}
+
+{% if resource.images %}
+- **Examples**:
+  {% for image in resource.images %}
+    <div class="resource-image">
+      <img src="{{ image.src }}" alt="{{ image.caption }}" style="max-width:100%; margin-top:10px;">
+      <div style="font-size: 0.9em; color: gray;">{{ image.caption }}</div>
+    </div>
+  {% endfor %}
+{% endif %}
+
+<hr>
+
+{% endfor %}
