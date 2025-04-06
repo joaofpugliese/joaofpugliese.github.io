@@ -1,20 +1,11 @@
 - id: customized-sliders
-  title: Customized Sliders
+  title: Simple Customized Sliders
   functionality: JavaScript
-  summary: Custom-styled Qualtrics sliders keeping native styles, including tick marks and embedded data saving.
+  summary: Custom Qualtrics sliders keeping native styles. Good to set up slider with personalized maximum/minimum values and change display values.
   long_description: >
-    This script customizes Qualtrics sliders, preserving native styling. It allows thumb customization, filled progress bars, tick marks, and automatic embedded data saving.
+    This script creates a custom Qualtrics sliders, preserving native styling. It works by recreating a slider using the exact structure from Qualtrics, which makes CSS styles apply to the created slider. You want to set a Text/Graphic question type and add this script as JavaScript. It allows you to customize the slider's maximum and minimum values, places where you display values, and save the selected value as embedded data. The script also includes customization of visual elements following Qualtrics standard choices in a Slider question. No HTML is needed, just the JavaScript. It does not support adding images to the slider, though it supports emojis. Tested for the new Simple Qualtrics theme.
   files:
-    - customized-slider.txt
+    - customized-slider-qualtrics-graphics.txt
   images:
     - src: /assets/images/customized-slider-example1.png
       caption: Slider with customized thumb and tick marks.
-
-- id: video-embedding-with-data-tracking
-  title: Video Embedding with Data Tracking
-  functionality: HTML, JavaScript
-  summary: Embed videos with optional thumbnails and capture participant interactions.
-  long_description: >
-    This script shows how to embed videos into a Qualtrics survey, optionally use a custom thumbnail, and capture user interaction like play events or completion events using Embedded Data fields.
-  files:
-    - video-embed-with-tracking.txt
