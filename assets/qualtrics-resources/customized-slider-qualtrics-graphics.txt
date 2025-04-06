@@ -1,0 +1,449 @@
+Qualtrics.SurveyEngine.addOnload(function () {
+    //----------------------------------------------
+    // CUSTOMIZATION VARIABLES
+    //----------------------------------------------
+    const min_value = 0;              // Minimum value of the slider
+    const max_value = 100; // Maximum value of the slider
+    const increments = 10;            // Number of increments (0, 10, 20, ..., 100)
+    const snap_to_increments = false;  // Whether values must snap to increments
+    const decimals = 0;               // Number of decimal places to show
+	
+    // Variable storage options
+    const store_embedded = true;           // Whether to store as embedded data 
+    const embedded_data_name = "belief_minimum_bid"; // Name of the embedded data field	
+
+    // Question title options
+    const show_title = false;          // Whether to show a title/question text
+    const title_text = "Slider question"; // Custom title text to display
+
+    // Custom label (left and right-side) options
+    const custom_limits = 1;          // 0 = Use numeric values, 1 = Use custom text
+    const min_label_text = "0%";  // Custom text for minimum label
+    const max_label_text = "100%";  // Custom text for maximum label
+    
+    // Value display options
+    const show_value = true;          // Whether to show the current value
+	const position_value = "top";	  // Position of value (top, bottom, left, or right)
+    const custom_value = 1;           // 0 = Just the number, 1 = Custom formatted
+    const value_format = "💰: R$VALUE"; // Custom value format (VALUE gets replaced with the actual slider value)
+	
+    //----------------------------------------------
+    // CALCULATED VARIABLES
+    //----------------------------------------------
+    const step_size = snap_to_increments ? (max_value - min_value) / increments : 
+                     (decimals > 0 ? Math.pow(0.1, decimals) : 1);
+    const num_ticks = increments + 1; // Number of tick marks (including min and max)
+
+    //----------------------------------------------
+    // FIND CONTAINER AND SET UP STRUCTURE
+    //----------------------------------------------
+    
+    // Get the question container
+    const container = this.getQuestionContainer();
+    
+    // Find the question-content div
+    const questionContent = container.querySelector('.question-content');
+    
+    if (!questionContent) {
+        console.error("Could not find .question-content container");
+        return;
+    }
+    
+    // Make sure the section has the right classes for styling
+    const questionSection = container.closest('section');
+    if (questionSection && !questionSection.classList.contains('slider')) {
+        questionSection.classList.add('slider', 'handle');
+    }
+    
+    //----------------------------------------------
+    // CREATE QUESTION TEXT STRUCTURE
+    //----------------------------------------------
+    
+    // First level: slider-statement
+    const sliderStatement = document.createElement('div');
+    sliderStatement.className = 'slider-statement';
+    sliderStatement.id = 'slider-statement-custom-1';
+    
+    // Choice display container
+    const choice = document.createElement('div');
+    choice.className = 'choice';
+	
+	const choiceErrorContainer = document.createElement('div');
+	choiceErrorContainer.className = 'choice-error-container';
+
+	const choiceError = document.createElement('div');
+	choiceError.className = 'choice-error';
+
+	const choiceContent = document.createElement('span');
+	choiceContent.className = 'choice-content';
+
+	const displayWithImage = document.createElement('span');
+	displayWithImage.className = 'display-with-image';
+	displayWithImage.id = 'choice-display-custom-1';
+
+	const displayText = document.createElement('span');
+	displayText.className = 'display-with-image-display rich-text';
+
+	// Set up based on show_title
+	if (show_title) {
+		displayText.textContent = title_text; // Use the custom title text
+	} else {
+		// Hide the entire choice container to eliminate vertical space
+		choice.style.display = 'none';
+	}
+
+	// Build the hierarchy regardless
+	displayWithImage.appendChild(displayText);
+	choiceContent.appendChild(displayWithImage);
+	choiceError.appendChild(choiceContent);
+	choiceErrorContainer.appendChild(choiceError);
+	choice.appendChild(choiceErrorContainer);
+	sliderStatement.appendChild(choice);
+
+    //----------------------------------------------
+    // CREATE SLIDER CONTROL STRUCTURE
+    //----------------------------------------------
+    
+    // Create the slider control container
+    const sliderControlContainer = document.createElement('div');
+    sliderControlContainer.className = 'slider-control-container';
+    
+    const sliderControl = document.createElement('div');
+    sliderControl.className = 'slider-control';
+    
+    //----------------------------------------------
+    // CREATE ACTUAL SLIDER COMPONENTS
+    //----------------------------------------------
+    
+    // Create the actual slider container
+    const sliderContainer = document.createElement('div');
+    sliderContainer.className = 'slider-container';
+    
+    const sliderRangeContainer = document.createElement('div');
+    sliderRangeContainer.className = 'slider-range-container';
+    
+    // Create the slider background (track)
+    const sliderBackground = document.createElement('div');
+    sliderBackground.className = 'slider-background';
+    
+    // Create the slider progress container and progress
+    const sliderProgressContainer = document.createElement('div');
+    sliderProgressContainer.className = 'slider-progress-container';
+    
+    const sliderProgress = document.createElement('div');
+    sliderProgress.className = 'slider-progress';
+    sliderProgress.style.width = '0%';
+    
+    // Create the tick marks container
+    const tickContainer = document.createElement('div');
+    tickContainer.className = 'slider-grid-tick-container';
+    
+    // Add tick marks based on number of increments
+    for (let i = 0; i < num_ticks; i++) {
+        const tick = document.createElement('div');
+        tick.className = 'slider-grid-tick';
+        
+        // First and last ticks are invisible
+        if (i === 0 || i === num_ticks - 1) {
+            tick.classList.add('slider-grid-tick-invisible');
+        }
+        
+        tickContainer.appendChild(tick);
+    }
+    
+    // Create the range input
+    const input = document.createElement('input');
+    input.type = 'range';
+    input.min = min_value.toString();
+    input.max = max_value.toString();
+    input.step = step_size.toString();
+    input.value = min_value.toString();
+    input.setAttribute('aria-labelledby', 'choice-display-custom-1');
+    
+    // Create the labels container for min/max values
+    const labelsContainer = document.createElement('div');
+    labelsContainer.className = 'slider-grid-labels';
+    
+    const minLabel = document.createElement('span');
+    minLabel.className = 'slider-min';
+    minLabel.setAttribute('aria-hidden', 'true');
+    
+    // Set min label text based on custom_limits setting
+    if (custom_limits === 1) {
+        minLabel.textContent = min_label_text;
+    } else {
+        minLabel.textContent = min_value.toFixed(decimals);
+    }
+    
+    const maxLabel = document.createElement('span');
+    maxLabel.className = 'slider-max';
+    maxLabel.setAttribute('aria-hidden', 'true');
+    
+    // Set max label text based on custom_limits setting
+    if (custom_limits === 1) {
+        maxLabel.textContent = max_label_text;
+    } else {
+        maxLabel.textContent = max_value.toFixed(decimals);
+    }
+    
+    //----------------------------------------------
+    // ASSEMBLE THE SLIDER COMPONENTS AND ADD DISPLAY VALUE
+    //----------------------------------------------
+    
+	// Assemble the slider hierarchy maintaining the original Qualtrics structure
+	sliderProgressContainer.appendChild(sliderProgress);
+
+	sliderRangeContainer.appendChild(sliderBackground);
+	sliderRangeContainer.appendChild(sliderProgressContainer);
+	sliderRangeContainer.appendChild(tickContainer);
+	sliderRangeContainer.appendChild(input);
+
+	sliderContainer.appendChild(sliderRangeContainer);
+
+	labelsContainer.appendChild(minLabel);
+	labelsContainer.appendChild(maxLabel);
+
+	// Build slider control (but don't add to container yet)
+	sliderControl.appendChild(sliderContainer);
+	sliderControl.appendChild(labelsContainer);
+
+	// Handle value display creation and positioning
+	let valueDisplay = null;
+	if (show_value) {
+		// 1. Create the value display
+		valueDisplay = document.createElement('div');
+		valueDisplay.className = 'slider-value';
+		valueDisplay.setAttribute('aria-hidden', 'true');
+		valueDisplay.textContent = formatValueDisplay(min_value);
+
+		// Store a reference to the value display on the input element
+		input.valueDisplayElement = valueDisplay;
+
+		// 2. Add basic styling
+		valueDisplay.style.padding = '0.375rem';
+		valueDisplay.style.display = 'inline-block';
+		valueDisplay.style.wordWrap = 'break-word';
+		valueDisplay.style.whiteSpace = 'normal';
+		valueDisplay.style.lineHeight = '1.4';
+		valueDisplay.style.minHeight = '2rem';
+
+		// 3. Detect mobile view
+		const isMobile = window.innerWidth < 768;
+
+		// 4. Apply different styles based on device
+		if (isMobile) {
+			// Mobile optimization: prioritize fitting screen width
+			valueDisplay.style.width = '100%';
+			valueDisplay.style.maxWidth = '100%';
+			// No minimum width on mobile to prevent overflow
+		} else {
+			// Desktop: use min-width for stable UI during slider interaction
+			const maxFormattedValue = formatValueDisplay(max_value);
+			const multiplier = parseFloat(calculateWidthMultiplier(maxFormattedValue));
+			valueDisplay.style.minWidth = "calc(var(--answer-text-size, 1rem) * " + multiplier + ")";
+		}
+
+		// 5. Now handle position-specific logic
+		if (position_value === "top" || position_value === "bottom") {
+			// For top/bottom, create a container that's full width
+			const container = document.createElement('div');
+			container.style.width = '100%';
+			container.style.textAlign = 'center';
+
+			// Add more pronounced margins for mobile
+			const isMobile = window.innerWidth < 768;
+			if (isMobile) {
+				if (position_value === "top") {
+					container.style.marginBottom = '20px'; // Increased margin for mobile
+				} else {
+					container.style.marginTop = '20px'; // Increased margin for mobile
+				}
+				// Add padding as well for extra spacing
+				container.style.padding = '5px';
+			} else {
+				if (position_value === "top") {
+					container.style.marginBottom = '10px';
+				} else {
+					container.style.marginTop = '10px';
+				}
+			}
+
+			container.appendChild(valueDisplay); // Keep this in the original position
+
+			// Add slider control to its container
+			sliderControlContainer.appendChild(sliderControl);
+
+			if (position_value === "top") {
+				sliderStatement.appendChild(container);
+				sliderStatement.appendChild(sliderControlContainer);
+			} else {
+				sliderStatement.appendChild(sliderControlContainer);
+				sliderStatement.appendChild(container);
+			}
+		} else {
+			// For left/right positions
+			sliderControlContainer.style.display = 'flex';
+			sliderControlContainer.style.alignItems = 'center';
+			sliderControlContainer.style.width = '100%';
+			sliderControl.style.flex = '1';
+
+			if (isMobile) {
+				// On mobile, top/bottom positioning works better for horizontal layouts
+				const container = document.createElement('div');
+				container.style.width = '100%';
+				container.style.textAlign = 'center';
+				container.style.marginBottom = '10px';
+				container.appendChild(valueDisplay);
+
+				sliderStatement.appendChild(container);
+				sliderStatement.appendChild(sliderControlContainer);
+			} else {
+				// On desktop, use original left/right positioning
+				if (position_value === "left") {
+					valueDisplay.style.marginRight = '10px';
+					valueDisplay.style.textAlign = 'right';
+					sliderControlContainer.appendChild(valueDisplay);
+					sliderControlContainer.appendChild(sliderControl);
+				} else {
+					valueDisplay.style.marginLeft = '10px';
+					valueDisplay.style.textAlign = 'left';
+					sliderControlContainer.appendChild(sliderControl);
+					sliderControlContainer.appendChild(valueDisplay);
+				}
+
+				sliderStatement.appendChild(sliderControlContainer);
+			}
+		}
+
+		// 6. Add listener to handle resize events
+		window.addEventListener('resize', function() {
+			const isMobileNow = window.innerWidth < 768;
+
+			if (isMobileNow) {
+				valueDisplay.style.minWidth = '';  // Remove min-width on mobile
+				valueDisplay.style.width = '100%';
+			} else {
+				// Reapply desktop styling
+				const maxFormattedValue = formatValueDisplay(max_value);
+				const multiplier = parseFloat(calculateWidthMultiplier(maxFormattedValue));
+				valueDisplay.style.minWidth = "calc(var(--answer-text-size, 1rem) * " + multiplier + ")";
+				valueDisplay.style.width = '';
+			}
+		});
+
+	} else {
+		// No value display - just add the slider
+		sliderControlContainer.appendChild(sliderControl);
+		sliderStatement.appendChild(sliderControlContainer);
+	}
+
+	// Finally, add the statement to the question content
+	questionContent.appendChild(sliderStatement);
+
+    //----------------------------------------------
+    // SLIDER FUNCTIONALITY
+    //----------------------------------------------
+    
+    // Function to calculate the percentage for the progress bar
+    function calculatePercentage(value) {
+        return ((value - min_value) / (max_value - min_value)) * 100;
+    }
+	
+	// Function to calculate width mutliplier
+	function calculateWidthMultiplier(formattedMaxValue) {
+		const charCategories = {
+			emoji: 2.0,       // Emojis (like 💰)
+			currency: 0.8,    // Currency symbols
+			digit: 0.6,       // Numeric digits
+			space: 0.3,       // Spaces
+			other: 0.8        // Other characters
+		};
+
+		let totalRatio = 0;
+
+		// Count each type of character
+		for (let char of formattedMaxValue) {
+			if (/[\u{1F300}-\u{1F6FF}]/u.test(char)) {
+				totalRatio += charCategories.emoji;
+			} else if (/[0-9]/.test(char)) {
+				totalRatio += charCategories.digit;
+			} else if (/\s/.test(char)) {
+				totalRatio += charCategories.space;
+			} else if (/[\$\€\£\¥\₹\₽]/.test(char)) {
+				totalRatio += charCategories.currency;
+			} else {
+				totalRatio += charCategories.other;
+			}
+		}
+		
+		return totalRatio;
+	}	
+    
+    // Function to format the value display
+    function formatValueDisplay(value) {
+        if (custom_value === 1) {
+            // Replace VALUE in the template with the actual value
+            return value_format.replace('VALUE', value.toFixed(decimals));
+        } else if (custom_limits === 1) {
+            // Extract prefix from min_label_text if it exists
+            const prefix = min_label_text.replace(min_value.toString(), '');
+            return prefix + value.toFixed(decimals);
+        } else {
+            return value.toFixed(decimals);
+        }
+    }
+	
+	// Add a variable to track the current value (near the top of your code)
+	let currentSliderValue = min_value.toString();
+
+    // Add functionality to update the slider
+    input.addEventListener('input', function() {
+        const value = parseFloat(this.value);
+		currentSliderValue = this.value; // Store the current value
+        const percent = calculatePercentage(value);
+        
+        // Update progress bar width
+        sliderProgress.style.width = percent + '%';
+        
+        // Update value display if it's visible
+        if (show_value) {
+        	this.valueDisplayElement.textContent = formatValueDisplay(value);
+        }
+        
+        // Add or remove non-zero class based on value
+        if (value > min_value) {
+            sliderProgress.classList.add('slider-progress-non-zero');
+        } else {
+            sliderProgress.classList.remove('slider-progress-non-zero');
+        }
+        
+        // Update tick marks to show as covered
+        const ticks = tickContainer.querySelectorAll('.slider-grid-tick');
+        ticks.forEach((tick, index) => {
+            if (index === 0 || index === ticks.length - 1) return; // Skip invisible ticks
+            
+            const tickValue = min_value + (index * (max_value - min_value) / (num_ticks - 1));
+            if (tickValue <= value) {
+                tick.classList.add('slider-grid-tick-covered');
+            } else {
+                tick.classList.remove('slider-grid-tick-covered');
+            }
+        });
+    });
+
+	// Add an event listener for the Next button
+	document.addEventListener('click', function(event) {
+		// Check if the clicked element is the Next button
+		if (event.target.id === 'next-button' || 
+			event.target.closest('#next-button') || 
+			(event.target.tagName === 'BUTTON' && 
+			 event.target.textContent.includes('Next'))) {
+
+			// Store as embedded data if configured
+			if (store_embedded) {
+				Qualtrics.SurveyEngine.setJSEmbeddedData(embedded_data_name, currentSliderValue);
+				console.log("Set embedded data: " + embedded_data_name + " = " + currentSliderValue);
+			}
+		}
+	});
+});
