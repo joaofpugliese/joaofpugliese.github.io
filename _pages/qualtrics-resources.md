@@ -33,8 +33,6 @@ This page collects small scripts and code snippets for enhancing Qualtrics surve
 
 <hr>
 
-### Customizable sliders with default styling
-
 {% for resource in site.data.qualtrics-resources %}
 
 ### {{ resource.title }} {#{{ resource.id }}}
@@ -44,10 +42,7 @@ This page collects small scripts and code snippets for enhancing Qualtrics surve
 
 - **Resources**:
   {% for file in resource.files %}
-    - [Open {{ file }}](../assets/qualtrics-resources/{{ file }})
-  {% endfor %}
-  {% for link in resource.download_links %}
-  <a href="../assets/qualtrics-resources/{{ link.file }}" download class="download-button">{{ link.label }}</a>
+    - [Open {{ file }}](../assets/qualtrics-resources/{{ file }}) | [[Download]](../assets/qualtrics-resources/{{ file }}){: download}
   {% endfor %}
 
 {% if resource.images %}
