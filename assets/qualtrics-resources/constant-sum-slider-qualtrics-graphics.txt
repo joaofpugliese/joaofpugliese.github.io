@@ -3,7 +3,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
     // 1. Customize how many categories you want
     //    and the slider range / increments
     //----------------------------------------------
-    const categories = ["Educação", "Saúde", "Transporte", "Segurança"];
+    const categories = ["C1", "C2", "C3", "C4"];
     const suffix = "%";                 // e.g. show 40%
     
     // SUMMARY FORMAT CONFIGURATION
@@ -11,7 +11,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
     // These will be dynamically replaced when updating the summary
     const summaryFormat = "Allocated: {CURRENT}% (of {TOTAL}%) {EMOJI}";
 	
-    // Clamp mode
+    // Clamp or proportional allocation? mode
     const mode = "proportional";
 
     // Slider features
