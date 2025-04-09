@@ -1,0 +1,370 @@
+Qualtrics.SurveyEngine.addOnload(function () {
+    //----------------------------------------------
+    // 1. Customize how many categories you want
+    //    and the slider range / increments
+    //----------------------------------------------
+    const categories = ["Educação", "Saúde", "Transporte", "Segurança"];
+    const suffix = "%";                 // e.g. show 40%
+    
+    // SUMMARY FORMAT CONFIGURATION
+    // Customize the summary text with placeholders: {CURRENT}, {TOTAL}, {EMOJI}
+    // These will be dynamically replaced when updating the summary
+    const summaryFormat = "Allocated: {CURRENT}% (of {TOTAL}%) {EMOJI}";
+	
+    // Clamp mode
+    const mode = "proportional";
+
+    // Slider features
+    const min_value = 0;
+    const max_value = 100;
+
+    // We strongly recommend step=1 so leftover clamp can land exactly
+    const step_size = 2;  
+    // If you want ticks every 2 or 10, you can still do that visually,
+    // but you must keep step=1 so clamp doesn't skip leftover.
+
+    const increments = (max_value - min_value) / step_size;
+    const num_ticks = increments + 1; // number of tick marks
+
+    // Min/Max label display
+    const show_min_max_label = true;
+    const custom_min_max_label = false;
+    const min_label = "PlcHldMin";
+    const max_label = "PlcHldMax";
+
+    //----------------------------------------------
+    // 2. Qualtrics containers
+    //----------------------------------------------
+    const container = this.getQuestionContainer();
+    const questionContent = container.querySelector('.question-content');
+    if (!questionContent) {
+        console.error("Could not find .question-content");
+        return;
+    }
+    // Ensure the surrounding <section> has 'slider handle' classes
+    const questionSection = container.closest('section');
+    if (questionSection && !questionSection.classList.contains('slider')) {
+        questionSection.classList.add('slider', 'handle');
+    }
+
+    //----------------------------------------------
+    // 3. Create a summary container at the top - CUSTOMIZABLE VERSION
+    //----------------------------------------------
+    const summaryContainer = document.createElement('div');
+    summaryContainer.style.textAlign = 'center';
+    summaryContainer.style.margin = '10px 0';
+    summaryContainer.style.padding = '10px';
+    summaryContainer.style.borderRadius = '4px';
+    
+   	function formatSummary(template, current, total, emoji) {
+        // Create the base template with placeholders
+        let formattedText = template;
+        
+        // Replace CURRENT placeholder with bold value using proper concatenation
+        formattedText = formattedText.replace("{CURRENT}", 
+            "<strong>" + current + "</strong>");
+        
+        // Replace TOTAL placeholder with bold value using proper concatenation
+        formattedText = formattedText.replace("{TOTAL}", 
+            "<strong>" + total + "</strong>");
+        
+        // Replace EMOJI placeholder
+        formattedText = formattedText.replace("{EMOJI}", emoji);
+        
+        return formattedText;
+    }
+	
+    // Initialize with 0 allocated
+    const initialSummary = formatSummary(summaryFormat, 0, max_value, '❌');
+    summaryContainer.innerHTML = initialSummary;
+    
+    // Place the summary ABOVE the sliders
+    questionContent.appendChild(summaryContainer);
+
+    //----------------------------------------------
+    // 4. We'll store references to each slider input,
+    //    + an array for values (no oldValue object).
+    //----------------------------------------------
+    const sliderValues = new Array(categories.length).fill(0); // each slider is 0 initially
+    const sliders = [];  // store DOM references for later
+
+    const that = this; // for enabling/disabling Next button
+
+    //----------------------------------------------
+    // 5. Build one slider per category
+    //----------------------------------------------
+    categories.forEach((catLabel, i) => {
+        // A) .slider-statement container
+        const sliderStatement = document.createElement('div');
+        sliderStatement.className = 'slider-statement';
+        sliderStatement.id = `slider-statement-custom-${i}`;
+
+        // B) Qualtrics-style label block
+        const choice = document.createElement('div');
+        choice.className = 'choice';
+
+        const choiceErrorContainer = document.createElement('div');
+        choiceErrorContainer.className = 'choice-error-container';
+
+        const choiceError = document.createElement('div');
+        choiceError.className = 'choice-error';
+
+        const choiceContent = document.createElement('span');
+        choiceContent.className = 'choice-content';
+
+        const displayWithImage = document.createElement('span');
+        displayWithImage.className = 'display-with-image';
+        displayWithImage.id = `cat-display-${i}`; // ARIA reference?
+
+        // Label text + dynamic value
+        const displayText = document.createElement('span');
+        displayText.className = 'display-with-image-display rich-text';
+        displayText.textContent = catLabel + ": ";
+
+        const valueSpan = document.createElement('span');
+        valueSpan.className = 'cat-value-span';
+        valueSpan.textContent = "0%"; // starts at 0
+
+        displayText.appendChild(valueSpan);
+        displayWithImage.appendChild(displayText);
+
+        choiceContent.appendChild(displayWithImage);
+        choiceError.appendChild(choiceContent);
+        choiceErrorContainer.appendChild(choiceError);
+        choice.appendChild(choiceErrorContainer);
+        sliderStatement.appendChild(choice);
+
+        // C) slider-control-container
+        const sliderControlContainer = document.createElement('div');
+        sliderControlContainer.className = 'slider-control-container';
+
+        // D) slider-control
+        const sliderControl = document.createElement('div');
+        sliderControl.className = 'slider-control';
+
+        // E) slider-container
+        const sliderContainer = document.createElement('div');
+        sliderContainer.className = 'slider-container';
+
+        // F) slider-range-container
+        const sliderRangeContainer = document.createElement('div');
+        sliderRangeContainer.className = 'slider-range-container';
+
+        // G) slider-background
+        const sliderBackground = document.createElement('div');
+        sliderBackground.className = 'slider-background';
+
+        // H) slider-progress-container -> slider-progress
+        const sliderProgressContainer = document.createElement('div');
+        sliderProgressContainer.className = 'slider-progress-container';
+
+        const sliderProgress = document.createElement('div');
+        sliderProgress.className = 'slider-progress';
+        sliderProgress.style.width = '0%';
+
+        // I) Ticks
+        const tickContainer = document.createElement('div');
+        tickContainer.className = 'slider-grid-tick-container';
+
+        // We'll do a loop from 0..increments for visual ticks
+        // Even if step=1, you can decide how many ticks to show visually
+        for (let t = 0; t < num_ticks; t++) {
+            const tick = document.createElement('div');
+            tick.className = 'slider-grid-tick';
+            // Hide first and last if you prefer
+            if (t === 0 || t === num_ticks - 1) {
+                tick.classList.add('slider-grid-tick-invisible');
+            }
+            tickContainer.appendChild(tick);
+        }
+
+        // J) The actual <input type=range>
+        const input = document.createElement('input');
+        input.type = 'range';
+        input.min = min_value.toString();
+        input.max = max_value.toString();
+        input.step = step_size.toString(); // override step
+        input.value = "0";
+        input.setAttribute('aria-labelledby', `cat-display-${i}`);
+
+        // K) Min/Max labels
+        const labelsContainer = document.createElement('div');
+        labelsContainer.className = 'slider-grid-labels';
+
+        const minLabelSpan = document.createElement('span');
+        minLabelSpan.className = 'slider-min';
+        minLabelSpan.setAttribute('aria-hidden', 'true');
+        minLabelSpan.textContent = custom_min_max_label ? min_label : min_value.toString();
+
+        const maxLabelSpan = document.createElement('span');
+        maxLabelSpan.className = 'slider-max';
+        maxLabelSpan.setAttribute('aria-hidden', 'true');
+        maxLabelSpan.textContent = custom_min_max_label ? max_label : max_value.toString();
+
+        // L) Insert hierarchy
+        sliderProgressContainer.appendChild(sliderProgress);
+        sliderRangeContainer.appendChild(sliderBackground);
+        sliderRangeContainer.appendChild(sliderProgressContainer);
+        sliderRangeContainer.appendChild(tickContainer);
+        sliderRangeContainer.appendChild(input);
+
+        sliderContainer.appendChild(sliderRangeContainer);
+
+        if (show_min_max_label) {
+            labelsContainer.appendChild(minLabelSpan);
+            labelsContainer.appendChild(maxLabelSpan);
+        }
+
+        sliderControl.appendChild(sliderContainer);
+        sliderControl.appendChild(labelsContainer);
+
+        sliderControlContainer.appendChild(sliderControl);
+        sliderStatement.appendChild(sliderControlContainer);
+
+        // Finally, attach statement to questionContent
+        questionContent.appendChild(sliderStatement);
+
+        // Store references
+        sliders.push({
+            input,
+            sliderProgress,
+            tickContainer,
+            valueSpan,
+            index: i
+        });
+    });
+
+    //----------------------------------------------
+    // 6. Summation + clamp logic
+    //----------------------------------------------
+    function getCurrentSum() {
+        return sliderValues.reduce((s, v) => s + v, 0);
+    }
+
+    function updateSummary() {
+        const sum = getCurrentSum();
+        let emoji = "❌";
+        let statusColor = "#dc3545"; // red for incomplete
+        
+        if (sum === max_value) {
+            emoji = "✅";
+            statusColor = "#28a745"; // green for complete
+            that.enableNextButton();
+        } else {
+            that.disableNextButton();
+        }
+        
+        // Update the summary with the new formatted text
+        summaryContainer.innerHTML = formatSummary(summaryFormat, sum, max_value, emoji);
+        summaryContainer.style.color = statusColor;
+    }
+
+    function updateVisuals(slObj, newVal) {
+        // progress bar
+        const pct = ((newVal - min_value) / (max_value - min_value)) * 100;
+        slObj.sliderProgress.style.width = pct + "%";
+        // label
+        slObj.valueSpan.textContent = newVal + suffix;
+        // tick coverage
+        const ticks = slObj.tickContainer.querySelectorAll(".slider-grid-tick");
+        ticks.forEach((tick, idx) => {
+            if (idx === 0 || idx === num_ticks - 1) return; 
+            const tickValue = min_value + (idx*(max_value-min_value)/(num_ticks-1));
+            if (tickValue <= newVal) {
+                tick.classList.add("slider-grid-tick-covered");
+            } else {
+                tick.classList.remove("slider-grid-tick-covered");
+            }
+        });
+    }
+
+    // Attempt to set slider i to newVal, clamp if leftover is smaller
+    function clampValue(i, newVal) {
+        // leftover = max_value - (sum except this slider)
+        const sumExceptThis = getCurrentSum() - sliderValues[i];
+        const leftover = max_value - sumExceptThis;
+        if (newVal > leftover) {
+            return leftover < 0 ? 0 : leftover; // never go negative
+        }
+        return newVal;
+    }
+	
+   //----------------------------------------------
+
+    // 7. Proportional re-allocation approach
+
+    //----------------------------------------------
+
+    function proportionalValue(i, newVal) {
+        // oldVal for slider i
+        const oldVal = sliderValues[i];
+        const sumWithoutThis = getCurrentSum() - oldVal;
+        const leftover = max_value - sumWithoutThis;
+
+        // if no overshoot => accept newVal
+        if (newVal <= leftover) {
+            return newVal;
+        }
+
+        // overshoot
+        const overshoot = newVal - leftover;
+        // reduce from other sliders proportionally
+        let totalOther = sumWithoutThis;
+        if (totalOther <= 0) {
+            // if no other allocated, just clamp
+            return leftover;
+        }
+
+        // for each other slider
+        sliders.forEach(sl => {
+            if (sl.index === i) return; // skip self
+            const oldValOther = sliderValues[sl.index];
+            if (oldValOther > 0) {
+                const fraction = oldValOther / totalOther;
+                const reduceAmt = fraction * overshoot;
+                let newOther = oldValOther - reduceAmt;
+                // no negative
+                if (newOther < 0) newOther = 0;
+                // round to integer
+                newOther = Math.round(newOther);
+                sliderValues[sl.index] = newOther;
+                // update that slider's visuals
+                sl.input.value = newOther.toString();
+                updateVisuals(sl, newOther);
+            }
+        });
+        return leftover; 
+    }	
+
+    //----------------------------------------------
+    // 7. Event listeners: clamp + update
+    //----------------------------------------------
+    sliders.forEach(sl => {
+        sl.input.addEventListener("input", function() {
+            const oldVal = sliderValues[sl.index];
+            let newVal = parseInt(this.value) || 0;
+			
+			if(mode === "clamp"){
+            newVal = clampValue(sl.index, newVal);
+
+            // store + update DOM
+            sliderValues[sl.index] = newVal;
+            sl.input.value = newVal.toString();
+            updateVisuals(sl, newVal);
+			}
+			if(mode === "proportional"){
+            // do proportional re-allocation
+            const finalVal = proportionalValue(sl.index, newVal);
+            sliderValues[sl.index] = finalVal;
+            sl.input.value = finalVal.toString();
+			updateVisuals(sl, finalVal);
+			}
+            updateSummary();
+        });
+    });
+
+    // 8. Initialize
+    this.disableNextButton();
+    // Initial summary update
+    updateSummary();
+});
