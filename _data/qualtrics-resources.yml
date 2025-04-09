@@ -1,11 +1,17 @@
 - id: customized-sliders
   title: Simple Customized Sliders
   functionality: JavaScript
-  summary: Custom Qualtrics sliders keeping native styles. Good to set up slider with personalized maximum/minimum values and change display values.
+  summary: Custom sliders keeping native Qualtrics styles. Good to set up slider with personalized maximum/minimum values and change display values.
   long_description: >
     This script creates a custom Qualtrics sliders, preserving native styling. It works by recreating a slider using the exact structure from Qualtrics, which makes CSS styles apply to the created slider. You want to set a Text/Graphic question type and add this script as JavaScript. It allows you to customize the slider's maximum and minimum values, places where you display values, and save the selected value as embedded data. The script also includes customization of visual elements following Qualtrics standard choices in a Slider question. No HTML is needed, just the JavaScript. It does not support adding images to the slider, though it supports emojis. Tested for the new Simple Qualtrics theme.
   files:
     - customized-slider-qualtrics-graphics.txt
-  images:
-    - src: /assets/images/customized-slider-example1.png
-      caption: Slider with customized thumb and tick marks.
+
+- id: constant-sum-sliders
+  title: Constant Sum Sliders
+  functionality: JavaScript
+  summary: Constant-sum set of sliders keeping native Qualtrics styles. Better implementation of the Constant Sum question type for Simple Layout -- sliders are disabled for this theme at the moment. Similar to "Balls and Bins" style of questions.
+  long_description: >
+    This script creates a constant sum slider, useful for allocation problems without requiring participants to type. It lets you select categories and maximum allocation values that generate a set of sliders with a constant sum. Useful for time-allocation or belief elicitation questions. The Next button is disabled until the sum of the sliders equals the maximum value. Currently, if the allocation is reached, the sliders clamp at the maximum allowed values so respondents have to manually diminish other sliders to adjust the allocation.
+  files:
+    - constant-sum-slider-qualtrics-graphics.txt
