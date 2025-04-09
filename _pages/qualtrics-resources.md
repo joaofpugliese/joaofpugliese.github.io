@@ -43,7 +43,7 @@ This page collects small scripts and code snippets for enhancing Qualtrics surve
 - **Resources**:
   {% for file in resource.files %}
     - [Open {{ file }}](../assets/qualtrics-resources/{{ file }}) 
-      <a href="../assets/qualtrics-resources/{{ file }}" download="{{file}}">[Download]</a>
+      <a href="../assets/qualtrics-resources/{{ file }}" download>[Download]</a>
   {% endfor %}
   
 {% if resource.images %}
