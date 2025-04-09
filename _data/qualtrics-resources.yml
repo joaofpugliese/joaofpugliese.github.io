@@ -15,7 +15,4 @@
     This script creates a constant sum slider, useful for allocation problems without requiring participants to type. It lets you select categories and maximum allocation values that generate a set of sliders with a constant sum. Useful for time-allocation or belief elicitation questions. The Next button is disabled until the sum of the sliders equals the maximum value. Currently, if the allocation is reached, the sliders clamp at the maximum allowed values so respondents have to manually diminish other sliders to adjust the allocation.
   files:
     - constant-sum-slider-qualtrics-graphics.txt
-  download_links:
-    - label: Download
-      file: constant-sum-slider-qualtrics-graphics.txt
-      description: JavaScript implementation for constant sum slider
+  has_download: true
