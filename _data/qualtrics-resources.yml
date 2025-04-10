@@ -3,16 +3,17 @@
   functionality: JavaScript
   summary: Customizable sliders preserving native Qualtrics styles. Good to set up slider with personalized maximum/minimum values and change display values.
   long_description: >
-    This script creates a custom Qualtrics sliders, preserving native styling. It works by recreating a slider using the exact structure from Qualtrics, which makes CSS styles apply to the created slider. You want to set a Text/Graphic question type and add this script as JavaScript. It allows you to customize the slider's maximum and minimum values, places where you display values, and save the selected value as embedded data. The script also includes customization of visual elements following Qualtrics standard choices in a Slider question. No HTML is needed, just the JavaScript. It does not support adding images to the slider, though it supports emojis. Tested for the new Simple Qualtrics theme.
+    This script creates a custom Qualtrics sliders, preserving native styling. It works by recreating a slider using the exact structure from Qualtrics, which makes CSS styles apply to the created slider. You want to set a Text/Graphic question type and add this script as JavaScript. It allows you to customize the slider's maximum and minimum values, places where you display values, and save the selected value as Embedded Data. The script also includes customization of visual elements following Qualtrics standard choices in a Slider question. No HTML is needed, just the JavaScript. It does not support adding images to the slider, though it supports emojis. Tested for the new Simple Layout Qualtrics theme -- be aware that embedded data saved must be preffixed by "__js_". 
   files:
     - customized-slider-qualtrics-graphics.txt
+  has_download: true
 
 - id: constant-sum-sliders
   title: Constant Sum Sliders
   functionality: JavaScript
   summary: Constant-sum set of sliders keeping native Qualtrics styles. Better implementation of the Constant Sum question type for Simple Layout -- sliders are disabled for this theme at the moment. Similar to "Balls and Bins" style of questions for allocation.
   long_description: >
-    This script creates a constant sum slider, useful for allocation problems without requiring participants to type. It lets you select categories and maximum allocation values that generate a set of sliders with a constant sum. Useful for time-allocation or belief elicitation questions. The Next button is disabled until the sum of the sliders equals the maximum value. Currently, if the allocation is reached, the sliders clamp at the maximum allowed values so respondents have to manually diminish other sliders to adjust the allocation.
+    This script creates a constant sum slider, useful for allocation problems without requiring participants to type. It lets you select categories and maximum allocation values that generate a set of sliders with a constant sum. Useful for time-allocation or belief elicitation questions. The Next button is disabled until the sum of the sliders equals the maximum value. You can customize to choose to "clamp" or "proportional"ly adjust the sliders once they reach the maximum allowed value. Choices are stored as embedded data using a prefix followed by the index of the choice -- e.g., for 4 sliders and a prefix of "choice", the embedded data becomes "choice1", ..., "choice4". Tested for the new Simple Layout Qualtrics theme -- be aware that embedded data saved must be preffixed by "__js_".
   files:
     - constant-sum-slider-qualtrics-graphics.txt
   has_download: true

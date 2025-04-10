@@ -32,6 +32,12 @@ Qualtrics.SurveyEngine.addOnload(function () {
     const min_label = "PlcHldMin";
     const max_label = "PlcHldMax";
 
+    // Provide a CUSTOMIZABLE prefix for storing 
+    // each slider's value in Embedded Data.
+    // If prefix_embedded_name = "q", then "q1", "q2", ...
+    // ---------------------------------------------
+    const prefix_embedded_name = "choice";     
+
     //----------------------------------------------
     // 2. Qualtrics containers
     //----------------------------------------------
@@ -360,6 +366,15 @@ Qualtrics.SurveyEngine.addOnload(function () {
 			updateVisuals(sl, finalVal);
 			}
             updateSummary();
+
+            // -----------------------------------------
+            // Store this slider's value as embedded data
+            // e.g. prefix_embedded_name + (index+1)
+            // For index=0 => choice1
+            // For index=1 => choice2, etc.
+            // -----------------------------------------
+            const embeddedKey = prefix_embedded_name + String(sl.index + 1);
+            Qualtrics.SurveyEngine.setJSEmbeddedData(embeddedKey, finalVal.toString());            
         });
     });
 
