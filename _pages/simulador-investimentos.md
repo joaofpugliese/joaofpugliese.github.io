@@ -1,86 +1,85 @@
 ---
 layout: default
-title: "Simulador de investimento finacneiro"
-permalink: /simulador-investmentos/
+title: "Simulador de Investimentos"
+permalink: /investment-simulator/
 ---
 
+# Simulador de Investimentos
 
-# Investment Simulator
-
-Below is our interactive investment simulation tool. Adjust the parameters and click "Run Simulation."
+Abaixo está nossa ferramenta interativa de simulação de investimentos. Ajuste os parâmetros e clique em "Executar Simulação."
 
 <!-- BEGIN RAW HTML/JS -->
 <div>
   <form id="simulatorForm">
     <div>
-      <label for="initialAmount">Initial Investment Amount:</label>
+      <label for="initialAmount">Valor do Investimento Inicial:</label>
       <input type="number" id="initialAmount" required value="10000">
     </div>
     <div>
-      <label for="startYear">Start Year:</label>
+      <label for="startYear">Ano Inicial:</label>
       <input type="number" id="startYear" value="2025" required>
     </div>
     <div>
-      <label for="simulationYears">Simulation Duration (Years):</label>
+      <label for="simulationYears">Duração da Simulação (Anos):</label>
       <input type="number" id="simulationYears" value="30" required>
     </div>
     <div>
-      <label for="returnRate">Annual Return Rate (%)</label>
+      <label for="returnRate">Taxa de Retorno Anual (%):</label>
       <input type="number" id="returnRate" step="0.1" value="5" required>
     </div>
     <div>
-      <label for="inflationRate">Annual Inflation Rate (%)</label>
+      <label for="inflationRate">Taxa de Inflação Anual (%):</label>
       <input type="number" id="inflationRate" step="0.1" value="2" required>
     </div>
     <div>
-      <label for="taxRate">Tax Rate on Gains (%)</label>
+      <label for="taxRate">Taxa de Impostos sobre Ganhos (%):</label>
       <input type="number" id="taxRate" step="0.1" value="20" required>
     </div>
 
-    <h3>Extra Investments (Optional)</h3>
+    <h3>Investimentos Extras (Opcional)</h3>
     <div id="extraInvestments">
       <div class="investment">
-        <label>Date (Year):</label>
+        <label>Data (Ano):</label>
         <input type="number" class="investment-year" value="2025">
-        <label>Amount:</label>
+        <label>Valor:</label>
         <input type="number" class="investment-amount" value="0">
       </div>
     </div>
-    <button type="button" id="addInvestment">Add Another Investment</button>
+    <button type="button" id="addInvestment">Adicionar Outro Investimento</button>
 
     <br><br>
-    <button type="submit">Run Simulation</button>
+    <button type="submit">Executar Simulação</button>
   </form>
 </div>
 
 <div id="results"></div>
 
-<!-- A canvas for the Chart.js chart -->
+<!-- Um canvas para o gráfico Chart.js -->
 <canvas id="chartCanvas" width="600" height="400"></canvas>
 
-<!-- Include Chart.js from CDN -->
+<!-- Incluindo Chart.js via CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-  // Add a new extra investment input when the button is clicked.
+  // Adiciona um novo campo para investimento extra quando o botão é clicado.
   document.getElementById('addInvestment').addEventListener('click', function() {
     var container = document.getElementById('extraInvestments');
     var div = document.createElement('div');
     div.className = 'investment';
     div.innerHTML =
-      '<label>Date (Year):</label><input type="number" class="investment-year" value="2025"> ' +
-      '<label>Amount:</label><input type="number" class="investment-amount" value="0">';
+      '<label>Data (Ano):</label><input type="number" class="investment-year" value="2025"> ' +
+      '<label>Valor:</label><input type="number" class="investment-amount" value="0">';
     container.appendChild(div);
   });
 
-  // When the form is submitted, run the simulation.
+  // Quando o formulário for enviado, executa a simulação.
   document.getElementById('simulatorForm').addEventListener('submit', function(e) {
     e.preventDefault();
     runSimulation();
   });
 
   function runSimulation() {
-    // Retrieve input values.
+    // Recupera os valores dos inputs.
     var initialAmount = parseFloat(document.getElementById('initialAmount').value);
     var startYear = parseInt(document.getElementById('startYear').value);
     var simulationYears = parseInt(document.getElementById('simulationYears').value);
@@ -88,7 +87,7 @@ Below is our interactive investment simulation tool. Adjust the parameters and c
     var inflationRate = parseFloat(document.getElementById('inflationRate').value) / 100;
     var taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
 
-    // Aggregate extra contributions into an object keyed by year.
+    // Agrega os investimentos extras em um objeto indexado pelo ano.
     var extraInvestmentsElems = document.getElementsByClassName('investment');
     var extraContribs = {};
     for (var i = 0; i < extraInvestmentsElems.length; i++) {
@@ -102,7 +101,7 @@ Below is our interactive investment simulation tool. Adjust the parameters and c
       }
     }
 
-    // Prepare arrays to store simulation results.
+    // Prepara arrays para armazenar os resultados da simulação.
     var years = [];
     var nominalValues = [];
     var realValues = [];
@@ -112,24 +111,24 @@ Below is our interactive investment simulation tool. Adjust the parameters and c
 
     var currentNominal = initialAmount;
 
-    // Year 0
+    // Ano 0
     years.push(startYear);
     nominalValues.push(currentNominal);
-    realValues.push(currentNominal); // at the start, nominal == real
+    realValues.push(currentNominal); // no início, nominal == real
     nominalGrowthRates.push(0);
     realGrowthRates.push(0);
     distributions.push(0);
 
-    // Run the simulation for each subsequent year.
+    // Executa a simulação para cada ano subsequente.
     for (var i = 1; i <= simulationYears; i++) {
       var year = startYear + i;
-      // Add any extra contribution for the current year.
+      // Adiciona qualquer investimento extra para o ano atual.
       var contrib = extraContribs[year] || 0;
       currentNominal += contrib;
 
-      // Pre-growth for nominal comparison
+      // Valor antes do crescimento para comparação nominal.
       var preGrowthNom = currentNominal;
-      // Apply nominal return
+      // Aplica o retorno nominal.
       currentNominal = currentNominal * (1 + returnRate);
       var nominalGrowth = (currentNominal / preGrowthNom) - 1;
 
@@ -137,7 +136,7 @@ Below is our interactive investment simulation tool. Adjust the parameters and c
       nominalValues.push(currentNominal);
       nominalGrowthRates.push(nominalGrowth * 100);
 
-      // Real value after adjusting for cumulative inflation
+      // Valor real após ajustar pela inflação acumulada.
       var currentReal = currentNominal / Math.pow((1 + inflationRate), i);
       realValues.push(currentReal);
 
@@ -146,20 +145,20 @@ Below is our interactive investment simulation tool. Adjust the parameters and c
       var realGrowth = (currentReal / baseReal) - 1;
       realGrowthRates.push(realGrowth * 100);
 
-      // Real earnings above inflation, minus tax
+      // Ganhos reais acima da inflação, subtraindo impostos.
       var realEarnings = currentReal - baseReal;
       var netRealEarnings = realEarnings * (1 - taxRate);
       distributions.push(netRealEarnings);
     }
 
-    // Build results table
+    // Constrói a tabela de resultados.
     var resultsDiv = document.getElementById('results');
-    var html = '<h2>Simulation Results</h2>';
+    var html = '<h2>Resultados da Simulação</h2>';
     html += '<table>';
-    html += '<tr><th>Year</th><th>Nominal Value</th><th>Real Value</th>' +
-            '<th>Nominal Growth (%)</th><th>Real Growth (%)</th>' +
-            '<th>Annual Dist. (Real, post-tax)</th>' +
-            '<th>Monthly Dist. (Real, post-tax)</th></tr>';
+    html += '<tr><th>Ano</th><th>Valor Nominal</th><th>Valor Real</th>' +
+            '<th>Crescimento Nominal (%)</th><th>Crescimento Real (%)</th>' +
+            '<th>Distribuição Anual (Real, pós-impostos)</th>' +
+            '<th>Distribuição Mensal (Real, pós-impostos)</th></tr>';
 
     for (var i = 0; i < years.length; i++) {
       var monthlyDist = distributions[i] / 12;
@@ -176,7 +175,7 @@ Below is our interactive investment simulation tool. Adjust the parameters and c
     html += '</table>';
     resultsDiv.innerHTML = html;
 
-    // Plot with Chart.js
+    // Plota com Chart.js.
     var ctx = document.getElementById('chartCanvas').getContext('2d');
     if (window.simulationChart) {
       window.simulationChart.destroy();
@@ -187,13 +186,13 @@ Below is our interactive investment simulation tool. Adjust the parameters and c
         labels: years,
         datasets: [
           {
-            label: 'Nominal Value',
+            label: 'Valor Nominal',
             data: nominalValues,
             borderColor: 'blue',
             fill: false
           },
           {
-            label: 'Real Value',
+            label: 'Valor Real',
             data: realValues,
             borderColor: 'green',
             fill: false
