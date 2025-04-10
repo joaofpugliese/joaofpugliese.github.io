@@ -1,14 +1,14 @@
 ---
 layout: page
 title: "Simulador de Investimentos"
-permalink: /investment-simulator/
+permalink: /simulador-investimentos/
 ---
-
 # Simulador de Investimentos
 
 Abaixo está nossa ferramenta interativa de simulação de investimentos. Ajuste os parâmetros e clique em "Executar Simulação."
 
 <!-- BEGIN RAW HTML/JS -->
+
 <div>
   <form id="simulatorForm">
     <div>
@@ -36,28 +36,31 @@ Abaixo está nossa ferramenta interativa de simulação de investimentos. Ajuste
       <input type="number" id="taxRate" step="0.1" value="20" required>
     </div>
 
-    <h3>Investimentos Extras (Opcional)</h3>
-    <div id="extraInvestments">
-      <div class="investment">
-        <label>Data (Ano):</label>
-        <input type="number" class="investment-year" value="2025">
-        <label>Valor:</label>
-        <input type="number" class="investment-amount" value="0">
-      </div>
-    </div>
-    <button type="button" id="addInvestment">Adicionar Outro Investimento</button>
+    `<h3>`Investimentos Extras (Opcional)`</h3>`
+    `<div id="extraInvestments">`
+      `<div class="investment">`
+        `<label>`Data (Ano):`</label>`
+        `<input type="number" class="investment-year" value="2025">`
+        `<label>`Valor:`</label>`
+        `<input type="number" class="investment-amount" value="0">`
+      `</div>`
+    `</div>`
+    `<button type="button" id="addInvestment">`Adicionar Outro Investimento`</button>`
 
-    <br><br>
-    <button type="submit">Executar Simulação</button>
-  </form>
+    `<br><br>`
+    `<button type="submit">`Executar Simulação`</button>`
+
+</form>
 </div>
 
 <div id="results"></div>
 
 <!-- Um canvas para o gráfico Chart.js -->
+
 <canvas id="chartCanvas" width="600" height="400"></canvas>
 
 <!-- Incluindo Chart.js via CDN -->
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -210,4 +213,5 @@ Abaixo está nossa ferramenta interativa de simulação de investimentos. Ajuste
     });
   }
 </script>
+
 <!-- END RAW HTML/JS -->
