@@ -1,0 +1,258 @@
+Qualtrics.SurveyEngine.addOnload(function() {
+    console.log('Qualtrics SurveyEngine loaded');
+    var that = this; // Save the reference to the question object	
+
+    // *******************************************
+    // 1. CONFIGURATION OPTIONS (Customizable)
+    // *******************************************
+    var config = {
+        videoId: "dQw4w9WgXcQ",         // Change this to use a different video
+        customThumbnail: "",            // Enter a custom thumbnail (image) URL, or leave empty for YouTube's default
+        minWatchTime: 15,               // Minimum watch time in seconds required to show the Next button
+        config.EventCountTotal: 5,
+        // Options for customizing embedded data field names:
+        embeddedDataTag: "TEST",          // For example, "V1" or even the first three letters of videoId
+        embeddedDataTagMode: "prefix"   // "prefix" or "suffix": Determines if the tag is prepended or appended.
+    };
+
+    // *******************************************
+    // Helper Function: setED
+    // Wraps Qualtrics' setJSEmbeddedData to include the custom tag.
+    // *******************************************
+    function setED(key, value) {
+        var newKey = key;
+        if (config.embeddedDataTag) {
+            if (config.embeddedDataTagMode === "prefix") {
+                newKey = config.embeddedDataTag + "_" + key;
+            } else if (config.embeddedDataTagMode === "suffix") {
+                newKey = key + "_" + config.embeddedDataTag;
+            }
+        }
+        Qualtrics.SurveyEngine.setJSEmbeddedData(newKey, value);
+    }
+
+    // Compute thumbnail URL: if a custom thumbnail is provided, use it; otherwise use an empty string
+    // (letting YouTube’s native thumbnail appear)
+    var thumbnailUrl = config.customThumbnail || "";
+
+    // *******************************************
+    // 2. INITIAL SETUP
+    // *******************************************
+    // Hide Next button initially (Qualtrics API)
+    this.hideNextButton();
+
+    // Insert a header container with the thumbnail image (clickable) above the player, only if a custom thumbnail is provided.
+    if (thumbnailUrl) {
+        // Create and insert custom thumbnail element since one is provided.
+        var headerDiv = document.createElement('div');
+        headerDiv.id = "video-header";
+        headerDiv.style.textAlign = "center";
+        headerDiv.style.marginBottom = "10px";
+
+        var thumbnailImg = document.createElement('img');
+        thumbnailImg.id = "video-thumbnail";
+        thumbnailImg.src = thumbnailUrl;
+        thumbnailImg.style.cursor = "pointer";
+        thumbnailImg.style.maxWidth = "100%";
+        // (Optionally, insert a dummy play icon overlay here.)
+        headerDiv.appendChild(thumbnailImg);
+        var playerContainer = document.getElementById('player-container');
+        playerContainer.parentNode.insertBefore(headerDiv, playerContainer);
+
+        // Hide the YouTube player container until the user clicks your custom thumbnail.
+        playerContainer.style.display = 'none';
+
+        // Bind the click event to display the player.
+        thumbnailImg.addEventListener('click', window.showVideoPlayer);
+    } else {
+        // No custom thumbnail provided: Ensure the player container is visible
+        var playerContainer = document.getElementById('player-container');
+        playerContainer.style.display = 'block';
+        // YouTube’s native thumbnail (with overlay) will appear.
+    }
+	
+    // *******************************************
+    // 3. LOAD THE YOUTUBE IFRAME API IF NEEDED
+    // *******************************************
+    if (!window.YT) {
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+
+    // *******************************************
+    // 4. PLAYER AND TRACKING VARIABLES
+    // *******************************************
+    var player;
+    var playerReady = false;
+    var maxTimeWatched = 0;
+    var totalTimeWatched = 0;
+    var jumpCount = 0;
+    var volumeEventCount = 0;
+    var qualityChangeCount = 0;
+    var lastTime = 0;
+    var lastVolumeState = null;
+    var trackingInterval;
+    var videoStatus = "Not Played";
+
+    // *******************************************
+    // 5. PLAYER INITIALIZATION & API HANDLERS
+    // *******************************************
+    function initializePlayer() {
+        console.log('Initializing YouTube Player');
+        player = new YT.Player('player', {
+            height: '100%',
+            width: '100%',
+            videoId: config.videoId,
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange,
+                'onPlaybackQualityChange': onPlaybackQualityChange,
+                'onError': onPlayerError
+            },
+            playerVars: {
+                'autoplay': 0,
+                'controls': 1,
+                'modestbranding': 1,
+                'rel': 0,
+                'showinfo': 0,
+                'iv_load_policy': 3,
+                'disablekb': 1
+            }
+        });
+    }
+
+    // Called when the YouTube API is ready
+    window.onYouTubeIframeAPIReady = function() {
+        initializePlayer();
+    };
+
+    // If YouTube API is already available, initialize player immediately
+    if (window.YT && YT.Player) {
+        initializePlayer();
+    }
+
+    // When the player is ready, cue the video to preload without starting playback.
+    function onPlayerReady(event) {
+        console.log('Player ready');
+        playerReady = true;
+        // Use cueVideoById to preload video data while keeping the thumbnail visible
+        player.cueVideoById(config.videoId);
+        // Save the video ID to Qualtrics Embedded Data using the helper function
+        setED('WatchedVideoID', config.videoId);
+        console.log('WatchedVideoID set to', config.videoId);
+    }
+
+    // Track user interactions: playing, watching time, skipping, volume changes, etc.
+    function onPlayerStateChange(event) {
+        console.log('Player state change: ', event.data);
+
+        if (event.data === YT.PlayerState.PLAYING) {
+            console.log('Playing...');
+            clearInterval(trackingInterval);
+            if (videoStatus === "Not Played") {
+                videoStatus = "Partially Played";
+                setED('VideoStatus', videoStatus);
+                console.log('VideoStatus updated to Partially Played');
+            }            
+            trackingInterval = setInterval(function() {
+                if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    var currentTime = player.getCurrentTime();
+                    if (currentTime > maxTimeWatched) {
+                        maxTimeWatched = currentTime;
+                        setED('MaxTimeWatched', maxTimeWatched);
+                        console.log('MaxTimeWatched updated: ', maxTimeWatched);
+                    }
+                    var playbackRate = player.getPlaybackRate();
+                    totalTimeWatched += 0.5 * playbackRate;
+                    setED('TotalTimeWatched', totalTimeWatched);
+                    console.log('TotalTimeWatched updated: ', totalTimeWatched);
+                    // Once the user has watched enough, show the Next button
+                    if (totalTimeWatched >= config.minWatchTime) {
+                        that.showNextButton();
+                    }
+                    // Detect jumps (if user skips parts of the video)
+                    if (Math.abs(currentTime - lastTime) > 2) {
+                        jumpCount++;
+                        // Record jump details for up to 5 jumps
+                        if (jumpCount <= config.EventCountTotal) {
+                            setED('JumpFromWhen' + jumpCount, lastTime);
+                            setED('JumpToWhen' + jumpCount, currentTime);
+                            console.log('Jump detected from ', lastTime, 'to', currentTime);
+                        }
+                    }
+                    // Track volume events (mute/unmute)
+                    var volumeMuted = player.isMuted();
+                    var currentVolumeState = volumeMuted ? 'Muted' : 'Unmuted';
+                    if (currentVolumeState !== lastVolumeState) {
+                        volumeEventCount++;
+                        if (volumeEventCount <= config.EventCountTotal) {
+                            setED('VolumeEvent' + volumeEventCount, currentVolumeState);
+                            setED('VolumeTime' + volumeEventCount, currentTime);
+                            console.log('Volume event (' + volumeEventCount + '): ', currentVolumeState, 'at', currentTime);
+                        }
+                        lastVolumeState = currentVolumeState;
+                    }
+                    lastTime = currentTime;
+                }
+            }, 500);
+        } else if (event.data === YT.PlayerState.ENDED) {
+            videoStatus = "Ended";
+            setED('VideoStatus', videoStatus);
+            clearInterval(trackingInterval);
+            console.log('Video ended');
+        } else {
+            clearInterval(trackingInterval);
+        }
+    }
+
+    // Handle playback quality changes
+    function onPlaybackQualityChange(event) {
+        qualityChangeCount++;
+        if (qualityChangeCount <= config.EventCountTotal) {
+            var currentTime = player.getCurrentTime();
+            setED('QualityChange' + qualityChangeCount, event.data);
+            setED('QualityTime' + qualityChangeCount, currentTime);
+            console.log('Quality change event recorded: ', event.data, 'at', currentTime);
+        }
+    }
+
+    // Log errors from the YouTube player
+    function onPlayerError(event) {
+        console.error('Error in player: ', event.data);
+    }
+
+    // Before unloading the page, clear intervals and capture final video status.
+    Qualtrics.SurveyEngine.addOnUnload(function() {
+        clearInterval(trackingInterval);
+        setED('VideoStatus', videoStatus);
+        console.log('Unload: VideoStatus set to ', videoStatus);
+    });
+
+    // *******************************************
+    // 6. HANDLING USER INTERACTION
+    // *******************************************
+    // When the user clicks the thumbnail image, hide it and show the video player
+    window.showVideoPlayer = function() {
+        if (playerReady) {
+            // Hide the custom thumbnail
+            document.getElementById('video-header').style.display = 'none';
+            // Show the embedded player
+            document.getElementById('player-container').style.display = 'block';
+            // Start playing the video
+            player.playVideo();
+        } else {
+            // Wait until the player is ready, then try again
+            console.log('Player not ready yet');
+            setTimeout(window.showVideoPlayer, 500);
+        }
+    };
+
+    // If a custom thumbnail exists, bind its click event. (This is safe because of our earlier condition.)
+    if (thumbnailUrl) {
+        document.getElementById('video-thumbnail').addEventListener('click', window.showVideoPlayer);
+    }
+
+    console.log('Script finished execution');
+});

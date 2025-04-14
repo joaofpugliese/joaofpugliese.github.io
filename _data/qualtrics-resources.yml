@@ -5,7 +5,7 @@
   long_description: >
     This script creates a custom Qualtrics sliders, preserving native styling. It works by recreating a slider using the exact structure from Qualtrics, which makes CSS styles apply to the created slider. You want to set a Text/Graphic question type and add this script as JavaScript. It allows you to customize the slider's maximum and minimum values, places where you display values, and save the selected value as Embedded Data. The script also includes customization of visual elements following Qualtrics standard choices in a Slider question. No HTML is needed, just the JavaScript. It does not support adding images to the slider, though it supports emojis. Tested for the new Simple Layout Qualtrics theme -- be aware that embedded data saved must be preffixed by "__js_". 
   files:
-    - customized-slider-qualtrics-graphics.txt
+    - customized-slider-qualtrics-graphics-js.txt
   has_download: true
 
 - id: constant-sum-sliders
@@ -15,5 +15,29 @@
   long_description: >
     This script creates a constant sum slider, useful for allocation problems without requiring participants to type. It lets you select categories and maximum allocation values that generate a set of sliders with a constant sum. Useful for time-allocation or belief elicitation questions. The Next button is disabled until the sum of the sliders equals the maximum value. You can customize to choose to "clamp" or "proportional"ly adjust the sliders once they reach the maximum allowed value. Choices are stored as embedded data using a prefix followed by the index of the choice -- e.g., for 4 sliders and a prefix of "choice", the embedded data becomes "choice1", ..., "choice4". Tested for the new Simple Layout Qualtrics theme -- be aware that embedded data saved must be preffixed by "__js_".
   files:
-    - constant-sum-slider-qualtrics-graphics.txt
+    - constant-sum-slider-qualtrics-graphics-js.txt
   has_download: true
+
+- id: youtube_video_with_trackers
+  title: Embedding YouTube Video with Trackers
+  functionality: JavaScript, HTML
+  summary: Embed a YouTube video with trackers to measure time spent on the video.
+  long_description: >
+    This script allows you to embed a YouTube video in a Qualtrics survey and track the time spent on the video. It uses the YouTube IFrame API to control the video playback and send tracking data to Qualtrics. The script includes functions to start and stop tracking when the video is played or paused, and it sends the tracking data as embedded data to Qualtrics. The script also includes a function to handle the end of the video and send the final tracking data. This script is useful for surveys that include video content and want to measure participant engagement with the video. You have to add the HTML code to the question body and the JavaScript code to the question's JavaScript section. The video ID must be specified in the HTML code. Also useful if you want to randomize videos and send the ID through Embedded Data.
+
+    # Summary of the Embedded Data Saved
+
+    | Embedded Data | Meaning |
+    |:--------------|:--------|
+    | `WatchedVideoID` | ID of video watched |
+    | `MaxTimeWatched` | Farthest timestamp reached |
+    | `TotalTimeWatched` | Total accumulated time playing |
+    | `JumpDetected` | If a jump/skipping behavior was detected |
+    | `JumpFromWhen1`, `JumpToWhen1`, etc. | Timestamps of skips (up to 5 skips) |
+    | `VolumeEvent1`, `VolumeTime1`, etc. | Mute/Unmute events and when they happened (up to 5) |
+    | `QualityChange1`, `QualityTime1`, etc. | Quality change events (up to 5) |
+    | `VideoStatus` | Final status of the video ("Ended" or not) |
+  files:
+    - video-embedding-html.txt
+    - video-embedding-js.txt
+  has_download: true  

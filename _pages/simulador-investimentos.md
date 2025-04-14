@@ -3,8 +3,6 @@ layout: page
 title: "Simulador de Investimentos"
 permalink: /simulador-investimentos/
 ---
-# Simulador de Investimentos
-
 Abaixo está nossa ferramenta interativa de simulação de investimentos. Ajuste os parâmetros e clique em "Executar Simulação."
 
 <!-- BEGIN RAW HTML/JS -->
@@ -45,10 +43,10 @@ Abaixo está nossa ferramenta interativa de simulação de investimentos. Ajuste
         `<input type="number" class="investment-amount" value="0">`
       `</div>`
     `</div>`
-    `<button type="button" id="addInvestment">`Adicionar Outro Investimento`</button>`
+    `<button type="button" id="addInvestment">`Adicionar Outro Investimento `</button>`
 
     `<br><br>`
-    `<button type="submit">`Executar Simulação`</button>`
+    `<button type="submit">`Executar Simulação `</button>`
 
 </form>
 </div>
