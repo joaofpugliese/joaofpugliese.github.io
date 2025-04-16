@@ -5,67 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Dummies</title>
     <style>
-        html, body {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          overflow: hidden; /* Hide any scroll that might appear inside the child */
-        }
+        html, body { margin:0; padding:0; overflow:hidden; }
     </style>
 </head>
 <body>
-    <embed
-    id="dummiesSvg"
-    src="processed_dummies_5_by_40.svg"
-    type="image/svg+xml"
-    style="width:100%; height:auto; border:none; display:block;"
-  >
-  <script>
+    <embed id="dummiesSvg" src="processed_dummies_5_by_40.svg" type="image/svg+xml" style="width:100%; height:auto; border:none; display:block;">
+
+    <script>
     window.addEventListener("message", function(event) {
-        if (event.origin !== "https://stanforduniversity.qualtrics.com") return; // Security check
-    
+        // accept messages only from your Qualtrics origin
+        const allowed = "https://stanforduniversity.qualtrics.com";
+        if (event.origin !== allowed) return;
+
         const data = event.data;
-        const svgEmbed = document.getElementById("dummiesSvg");
-        const svgDoc = svgEmbed?.getSVGDocument();
-    
-        if (!svgDoc) {
-            console.error("Could not access SVG document inside <embed>.");
-            return;
-        }
-    
-        // Handle black dummy fill (Question 2, page load)
+        const svgDoc = document.getElementById("dummiesSvg")?.getSVGDocument();
+        if (!svgDoc) { console.error("SVG embed not ready."); return; }
+
         if (data.action === "lightUpBlack") {
-            const numLit = data.numLit;
-            console.log("Received action: lightUpBlack, numLit:", numLit);
-    
             for (let i = 1; i <= 200; i++) {
-                const group = svgDoc.getElementById("dummy-" + i);
-                if (group) {
-                    group.setAttribute("fill", i <= numLit ? "black" : "#d9d9d9");
-                }
+                const grp = svgDoc.getElementById("dummy-" + i);
+                if (grp) grp.setAttribute("fill", i <= data.numLit ? "black" : "#d9d9d9");
             }
         }
-    
-        // Handle random green/yellow fill (Question 2, first slider interaction)
         if (data.action === "randomFillColors") {
-            const green = new Set(data.greenIndices || []);
-            const yellow = new Set(data.yellowIndices || []);
-            console.log("Received action: randomFillColors", data);
-    
+            const green = new Set(data.greenIndices);
+            const yellow = new Set(data.yellowIndices);
             for (let i = 1; i <= 200; i++) {
-                const group = svgDoc.getElementById("dummy-" + i);
-                if (!group) continue;
-    
-                if (green.has(i - 1)) {
-                    group.setAttribute("fill", "green");
-                } else if (yellow.has(i - 1)) {
-                    group.setAttribute("fill", "yellow");
-                } else {
-                    group.setAttribute("fill", "#d9d9d9");
-                }
+                const grp = svgDoc.getElementById("dummy-" + i);
+                if (!grp) continue;
+                if (green.has(i-1)) grp.setAttribute("fill", "green");
+                else if (yellow.has(i-1)) grp.setAttribute("fill", "yellow");
+                else grp.setAttribute("fill", "#d9d9d9");
             }
         }
-    }, false);
-    </script>    
+    });
+    </script>
 </body>
 </html>
