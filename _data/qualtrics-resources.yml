@@ -3,7 +3,7 @@
   functionality: JavaScript
   summary: Customizable sliders preserving native Qualtrics styles. Good to set up slider with personalized maximum/minimum values and change display values.
   long_description: >
-    This script creates a custom Qualtrics sliders, preserving native styling. It works by recreating a slider using the exact structure from Qualtrics, which makes CSS styles apply to the created slider. You want to set a Text/Graphic question type and add this script as JavaScript. It allows you to customize the slider's maximum and minimum values, places where you display values, and save the selected value as Embedded Data. The script also includes customization of visual elements following Qualtrics standard choices in a Slider question. No HTML is needed, just the JavaScript. It does not support adding images to the slider, though it supports emojis. Tested for the new Simple Layout Qualtrics theme -- be aware that embedded data saved must be preffixed by "__js_". 
+    This script creates a custom Qualtrics sliders, preserving native styling. It works by recreating a slider using the exact structure from Qualtrics, which makes CSS styles apply to the created slider. You want to set a Text/Graphic question type and add this script as JavaScript. It allows you to customize the slider's maximum and minimum values, places where you display values, and save the selected value as Embedded Data. The script also includes customization of visual elements following Qualtrics standard choices in a Slider question. No HTML is needed, just the JavaScript. It does not support adding images to the slider, though it supports emojis. Tested for the new Simple Layout Qualtrics theme -- be aware that embedded data saved must be preffixed by "__js_". Importantly, the 
   files:
     - customized-slider-qualtrics-graphics-js.txt
   has_download: true
@@ -40,4 +40,15 @@
   files:
     - video-embedding-html.txt
     - video-embedding-js.txt
+  has_download: true  
+
+- id: slider-dynamic-iframe
+  title: Slider-Controlled Dummy Visualization
+  functionality: JavaScript, HTML
+  summary: Connects a Qualtrics slider to an iframe display that lights up dummy figures as the slider moves. Helps respondents visualize quantities easily.
+  long_description: >
+    This script links a standard Qualtrics slider to a custom iframe visualization showing 1,000 dummy figures. As the respondent moves the slider, the script lights up one figure for every N units (e.g., every 5 units in the slider), offering a visual way to express estimates or beliefs. It uses `postMessage` to send data from the slider to the iframe hosted externally. This makes it easier for participants to engage with abstract numbers by visualizing them as people being selected. The script includes safeguards to check if the slider and iframe are correctly loaded. You can customize the number of total figures (`numDummies`) and the step size for when each new figure lights up. Works with the Simple Layout in Qualtrics.
+  files:
+    - slider-dummy-iframe-html.txt
+    - slider-dummy-iframe-js.txt
   has_download: true  

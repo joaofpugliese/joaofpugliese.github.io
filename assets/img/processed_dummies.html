@@ -20,28 +20,52 @@
     type="image/svg+xml"
     style="width:100%; height:auto; border:none; display:block;"
   >
-    <script>
-        window.addEventListener("message", function(event) {
-            if (event.origin !== "https://stanforduniversity.qualtrics.com") return; // Security check
-
-            var numLit = event.data.numLit;
-            console.log("Received numLit:", numLit);
-
-            var embed = document.getElementById("dummiesSvg");
-            var svgDoc = embed.getSVGDocument();
-
-            if (!svgDoc) {
-                console.error("Could not access SVG document inside <embed>.");
-                return;
-            }
-
-            for (var i = 1; i <= 200; i++) {
-                var group = svgDoc.getElementById("dummy-" + i);
+  <script>
+    window.addEventListener("message", function(event) {
+        if (event.origin !== "https://stanforduniversity.qualtrics.com") return; // Security check
+    
+        const data = event.data;
+        const svgEmbed = document.getElementById("dummiesSvg");
+        const svgDoc = svgEmbed?.getSVGDocument();
+    
+        if (!svgDoc) {
+            console.error("Could not access SVG document inside <embed>.");
+            return;
+        }
+    
+        // Handle black dummy fill (Question 2, page load)
+        if (data.action === "lightUpBlack") {
+            const numLit = data.numLit;
+            console.log("Received action: lightUpBlack, numLit:", numLit);
+    
+            for (let i = 1; i <= 200; i++) {
+                const group = svgDoc.getElementById("dummy-" + i);
                 if (group) {
                     group.setAttribute("fill", i <= numLit ? "black" : "#d9d9d9");
                 }
             }
-        }, false);
-    </script>
+        }
+    
+        // Handle random green/yellow fill (Question 2, first slider interaction)
+        if (data.action === "randomFillColors") {
+            const green = new Set(data.greenIndices || []);
+            const yellow = new Set(data.yellowIndices || []);
+            console.log("Received action: randomFillColors", data);
+    
+            for (let i = 1; i <= 200; i++) {
+                const group = svgDoc.getElementById("dummy-" + i);
+                if (!group) continue;
+    
+                if (green.has(i - 1)) {
+                    group.setAttribute("fill", "green");
+                } else if (yellow.has(i - 1)) {
+                    group.setAttribute("fill", "yellow");
+                } else {
+                    group.setAttribute("fill", "#d9d9d9");
+                }
+            }
+        }
+    }, false);
+    </script>    
 </body>
 </html>

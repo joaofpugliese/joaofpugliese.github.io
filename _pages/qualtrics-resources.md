@@ -3,10 +3,9 @@ layout: page
 title: "Qualtrics Resources"
 permalink: /qualtrics-resources/
 ---
-
 <link rel="stylesheet" href="/assets/css/qualtrics-resources.css">
 
-This page collects small scripts and code snippets for enhancing Qualtrics surveys. Each functionality has downloadable code and instructions for use.
+This page collects small scripts and code snippets for enhancing Qualtrics surveys. Each functionality has downloadable code and instructions for use. I am not a JavaScript specialist so codes may be imperfect, but these can provide a useful starter.
 
 ---
 
@@ -35,25 +34,26 @@ This page collects small scripts and code snippets for enhancing Qualtrics surve
 
 {% for resource in site.data.qualtrics-resources %}
 
-### {{ resource.title }} {#{{ resource.id }}}
+### }}}
 
-**Description**:  
-{{ resource.long_description }}
+**Description**:{{ resource.long_description }}
 
 - **Resources**:
   {% for file in resource.files %}
-    - [Open {{ file }}](../assets/qualtrics-resources/{{ file }}) 
-      <a href="../assets/qualtrics-resources/{{ file }}" download>[Download]</a>
-  {% endfor %}
-  
+  - [Open {{ file }}](../assets/qualtrics-resources/{{ file }})
+    `<a href="../assets/qualtrics-resources/{{ file }}" download>`[Download]`</a>`
+    {% endfor %}
+
 {% if resource.images %}
+
 - **Examples**:
   {% for image in resource.images %}
-    <div class="resource-image">
+  <div class="resource-image">
       <img src="{{ image.src }}" alt="{{ image.caption }}" style="max-width:100%; margin-top:10px;">
       <div style="font-size: 0.9em; color: gray;">{{ image.caption }}</div>
     </div>
   {% endfor %}
+
 {% endif %}
 
 <hr>
