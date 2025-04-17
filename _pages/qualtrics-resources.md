@@ -34,7 +34,7 @@ This page collects small scripts and code snippets for enhancing Qualtrics surve
 
 {% for resource in site.data.qualtrics-resources %}
 
-### }}}
+###
 
 **Description**:{{ resource.long_description }}
 
