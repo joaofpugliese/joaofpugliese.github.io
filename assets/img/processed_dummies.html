@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,6 +38,18 @@
                     g.setAttribute("fill", i < data.numLit ? "black" : "#d9d9d9")
                   );
                 }
+                else if (data.action === "fillInitial") {
+                    // first paint prevGreenCount green, then newBlackCount black, then prevYellowCount yellow
+                    const   gCount = data.prevGreenCount,
+                            bCount = data.newBlackCount,
+                            yCount = data.prevYellowCount;
+                    groups.forEach((grp,i) => {
+                    if      (i < gCount)                   grp.setAttribute("fill", "#18910b");
+                    else if (i < gCount + bCount)          grp.setAttribute("fill", "black");
+                    else if (i < gCount + bCount + yCount) grp.setAttribute("fill", "#ffbb0c");
+                    else                                   grp.setAttribute("fill", "#d9d9d9");
+                    });
+                }                
                 else if (data.action === "fillRandom") {
                   const total = data.greenCount + data.yellowCount;
                   const region = groups.slice(0, total);
@@ -68,7 +81,7 @@
                 if (!svgReady) {
                   svgReady = true;
                   clearInterval(poller);
-                  console.log("✔ SVG ready — flushing queued messages:", queue.length);
+                  // console.log("✔ SVG ready — flushing queued messages:", queue.length);
                 }
             
                 // Always process everything in the queue
@@ -86,7 +99,7 @@
             
               // Main listener
               window.addEventListener("message", event => {
-                console.log("📩 message from", event.origin, event.data);
+                // console.log("📩 message from", event.origin, event.data);
                 if (!event.origin.includes(VALID_ORIGIN)) {
                   console.warn("Ignored origin", event.origin);
                   return;
@@ -102,7 +115,7 @@
                 }
               }, false);
             
-              console.log("🔧 Dummies listener initialized");
+              // console.log("🔧 Dummies listener initialized");
             })();
             </script>
                 
