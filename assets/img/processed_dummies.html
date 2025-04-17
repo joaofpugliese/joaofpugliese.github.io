@@ -27,14 +27,24 @@
             }
         }
         if (data.action === "fillRandom") {
-            const green = new Set(data.greenIndices);
-            const yellow = new Set(data.yellowIndices);
-            groups.forEach((grp, i) => {
-            if (green.has(i))       grp.setAttribute("fill", "#18910b");
-            else if (yellow.has(i)) grp.setAttribute("fill", "#ffbb0c");
-            else                    grp.setAttribute("fill", "#d9d9d9");
+            // 1. grab all the dummy <g> elements
+            const groups = Array.from(svgDoc.querySelectorAll("g[id^='dummy-']"));
+
+            // 2. build & shuffle an index array [0,1,2,...,N-1]
+            const totalIcons = groups.length;
+            let indices = shuffleArray(Array.from({length: totalIcons}, (_, i) => i));
+
+            // 3. slice out green vs yellow
+            const greenIndices  = indices.slice(0, data.greenCount);
+            const yellowIndices = indices.slice(data.greenCount, data.greenCount + data.yellowCount);
+
+            // 4. apply colors
+            groups.forEach((grp, idx) => {
+                if (greenIndices.includes(idx))       grp.setAttribute("fill", "#18910b");
+                else if (yellowIndices.includes(idx))  grp.setAttribute("fill", "#ffbb0c");
+                else                                   grp.setAttribute("fill", "#d9d9d9");
             });
-        }
+            }
         if (data.action === "fillSequential") {
             const gCount = data.greenCount;
             const yCount = data.yellowCount;
@@ -46,6 +56,18 @@
             });
         }
     });
+    </script>
+    <script>
+        function shuffleArray(array) {
+          let current = array.length, tmp, rand;
+          while (current) {
+            rand = Math.floor(Math.random() * current--);
+            tmp = array[current];
+            array[current] = array[rand];
+            array[rand] = tmp;
+          }
+          return array;
+        }
     </script>
 </body>
 </html>
