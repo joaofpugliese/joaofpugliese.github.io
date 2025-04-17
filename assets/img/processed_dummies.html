@@ -12,78 +12,86 @@
     <embed id="dummiesSvg" src="processed_dummies_5_by_40.svg" type="image/svg+xml" style="width:100%; height:auto; border:none; display:block;">
 
     <script>
-    window.addEventListener("message", function(event) {
-        // accept messages only from your Qualtrics origin
-        if (event.origin !== "https://stanforduniversity.qualtrics.com") return;
-
-        const data = event.data;
-        const svgDoc = document.getElementById("dummiesSvg")?.getSVGDocument();
-        if (!svgDoc) { console.error("SVG embed not ready."); return; }
-
-        // First, pull in all the <g id="dummy‑X"> elements once per message:
-        const groups = Array.from(
-            svgDoc.querySelectorAll("g[id^='dummy-']")
-        );        
-
-        if (data.action === "lightUpBlack") {
-            for (let i = 1; i <= 200; i++) {
-                const grp = svgDoc.getElementById("dummy-" + i);
-                if (grp) grp.setAttribute("fill", i <= data.numLit ? "black" : "#d9d9d9");
+        (function() {
+            // 1) Incoming‐message queue & ready flag
+            const messageQueue = [];
+            let svgReady = false;
+        
+            // 2) Shuffle helper (unchanged)
+            function shuffleArray(array) {
+            let current = array.length, tmp, rand;
+            while (current) {
+                rand = Math.floor(Math.random() * current--);
+                tmp = array[current];
+                array[current] = array[rand];
+                array[rand] = tmp;
             }
-        }
-        if (data.action === "fillRandom") {
-            // how many icons to color at all
-            const totalToColor = data.greenCount + data.yellowCount;
-
-            // only those first N icons are eligible:
-            const eligibleGroups = groups.slice(0, totalToColor);
-
-            // make an index array [0,1,2…totalToColor-1], shuffle it:
-            let idxs = shuffleArray(
-            Array.from({ length: totalToColor }, (_, i) => i)
-            );
-
-            // first greenCount go green, next yellowCount go yellow
-            const greenIdxs  = new Set(idxs.slice(0, data.greenCount));
-            const yellowIdxs = new Set(idxs.slice(data.greenCount));
-
-            // color the eligible groups at those positions
-            eligibleGroups.forEach((grp, i) => {
-            if (greenIdxs.has(i))      grp.setAttribute("fill", "#18910b");
-            else if (yellowIdxs.has(i)) grp.setAttribute("fill", "#ffbb0c");
-            });
-
-            // reset any beyond totalToColor back to gray
-            groups.slice(totalToColor).forEach(grp => {
-            grp.setAttribute("fill", "#d9d9d9");
-            });
-        }
-
-        if (data.action === "fillSequential") {
-            // total sequential fills
-            const g = data.greenCount, y = data.yellowCount;
-            const total = g + y;
-
-            // now color the first g green, next y yellow, rest gray
-            groups.forEach((grp, i) => {
-            if (i < g)        grp.setAttribute("fill", "#18910b");
-            else if (i < total) grp.setAttribute("fill", "#ffbb0c");
-            else                grp.setAttribute("fill", "#d9d9d9");
-            });
-        }
-    });
-    </script>
-    <script>
-        function shuffleArray(array) {
-          let current = array.length, tmp, rand;
-          while (current) {
-            rand = Math.floor(Math.random() * current--);
-            tmp = array[current];
-            array[current] = array[rand];
-            array[rand] = tmp;
-          }
-          return array;
-        }
+            return array;
+            }
+        
+            // 3) Core coloring logic (same as before)
+            function handleData(data) {
+            const embed = document.getElementById("dummiesSvg");
+            const svgDoc = embed.getSVGDocument();
+            const groups = Array.from(svgDoc.querySelectorAll("g[id^='dummy-']"));
+        
+            if (data.action === "lightUpBlack") {
+                groups.forEach((grp, i) =>
+                grp.setAttribute("fill", i < data.numLit ? "black" : "#d9d9d9")
+                );
+            }
+            else if (data.action === "fillRandom") {
+                const total = data.greenCount + data.yellowCount;
+                const eligible = groups.slice(0, total);
+                const idxs = shuffleArray(Array.from({length: total}, (_, i) => i));
+                const greenSet  = new Set(idxs.slice(0, data.greenCount));
+                const yellowSet = new Set(idxs.slice(data.greenCount));
+        
+                eligible.forEach((grp, i) => {
+                if (greenSet.has(i))      grp.setAttribute("fill", "#18910b");
+                else if (yellowSet.has(i)) grp.setAttribute("fill", "#ffbb0c");
+                });
+                groups.slice(total).forEach(g => g.setAttribute("fill", "#d9d9d9"));
+            }
+            else if (data.action === "fillSequential") {
+                const g = data.greenCount, y = data.yellowCount, tot = g + y;
+                groups.forEach((grp, i) => {
+                if      (i < g)   grp.setAttribute("fill", "#18910b");
+                else if (i < tot) grp.setAttribute("fill", "#ffbb0c");
+                else              grp.setAttribute("fill", "#d9d9d9");
+                });
+            }
+            }
+        
+            // 4) Try flushing queued messages once SVG is available
+            function tryFlush() {
+            if (svgReady) return;
+            const embed = document.getElementById("dummiesSvg");
+            const svgDoc = embed?.getSVGDocument();
+            if (!svgDoc) return;
+            svgReady = true;
+            while (messageQueue.length) {
+                handleData(messageQueue.shift());
+            }
+            }
+        
+            // 5) Bind to embed load (where supported)
+            document.getElementById("dummiesSvg")
+            .addEventListener("load", tryFlush);
+        
+            // 6) Poll fallback every 100 ms
+            const poller = setInterval(() => {
+            if (svgReady) clearInterval(poller);
+            else          tryFlush();
+            }, 100);
+        
+            // 7) Single message listener that always queues first
+            window.addEventListener("message", event => {
+            if (!event.origin.includes("qualtrics.com")) return;
+            messageQueue.push(event.data);
+            tryFlush();
+            }, false);
+        })();
     </script>
 </body>
 </html>
