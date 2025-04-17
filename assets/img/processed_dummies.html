@@ -70,6 +70,35 @@
                     else              grp.setAttribute("fill", "#d9d9d9");
                   });
                 }
+                else if (data.action === "fillRandom2") {
+                    // only randomize inside the middle black block
+                    const offset = data.prevGreenCount;
+                    const length = data.newBlackCount;
+                    const region = groups.slice(offset, offset + length);
+
+                    const idxs = shuffleArray([...Array(length).keys()]);
+                    const gSet = new Set(idxs.slice(0, data.greenCount));
+                    const ySet = new Set(idxs.slice(data.greenCount));
+
+                    region.forEach((g,i) => {
+                        if      (gSet.has(i)) g.setAttribute("fill", "#18910b");
+                        else if (ySet.has(i)) g.setAttribute("fill", "#ffbb0c");
+                        else                  g.setAttribute("fill", "black");
+                    });
+                }
+                else if (data.action === "fillSequential2") {
+                    // only sequentially fill inside the middle black block
+                    const offset = data.prevGreenCount;
+                    const length = data.newBlackCount;
+                    const region = groups.slice(offset, offset + length);
+
+                    region.forEach((g,i) => {
+                        if      (i < data.greenCount)                g.setAttribute("fill", "#18910b");
+                        else if (i < data.greenCount + data.yellowCount)
+                                                                    g.setAttribute("fill", "#ffbb0c");
+                        else                                         g.setAttribute("fill", "black");
+                    });
+                }                
               }
             
               function tryFlush() {
