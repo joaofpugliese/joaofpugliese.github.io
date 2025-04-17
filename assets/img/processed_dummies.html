@@ -128,7 +128,7 @@
             
               // Main listener
               window.addEventListener("message", event => {
-                // console.log("📩 message from", event.origin, event.data);
+                console.log("📩 message from", event.origin, event.data);
                 if (!event.origin.includes(VALID_ORIGIN)) {
                   console.warn("Ignored origin", event.origin);
                   return;
@@ -144,7 +144,7 @@
                 }
               }, false);
             
-              // console.log("🔧 Dummies listener initialized");
+              console.log("🔧 Dummies listener initialized");
             })();
             </script>
                 
