@@ -20,6 +20,11 @@
         const svgDoc = document.getElementById("dummiesSvg")?.getSVGDocument();
         if (!svgDoc) { console.error("SVG embed not ready."); return; }
 
+        // First, pull in all the <g id="dummy‑X"> elements once per message:
+        const groups = Array.from(
+            svgDoc.querySelectorAll("g[id^='dummy-']")
+        );        
+
         if (data.action === "lightUpBlack") {
             for (let i = 1; i <= 200; i++) {
                 const grp = svgDoc.getElementById("dummy-" + i);
@@ -27,32 +32,43 @@
             }
         }
         if (data.action === "fillRandom") {
-            // 1. grab all the dummy <g> elements
-            const groups = Array.from(svgDoc.querySelectorAll("g[id^='dummy-']"));
+            // how many icons to color at all
+            const totalToColor = data.greenCount + data.yellowCount;
 
-            // 2. build & shuffle an index array [0,1,2,...,N-1]
-            const totalIcons = groups.length;
-            let indices = shuffleArray(Array.from({length: totalIcons}, (_, i) => i));
+            // only those first N icons are eligible:
+            const eligibleGroups = groups.slice(0, totalToColor);
 
-            // 3. slice out green vs yellow
-            const greenIndices  = indices.slice(0, data.greenCount);
-            const yellowIndices = indices.slice(data.greenCount, data.greenCount + data.yellowCount);
+            // make an index array [0,1,2…totalToColor-1], shuffle it:
+            let idxs = shuffleArray(
+            Array.from({ length: totalToColor }, (_, i) => i)
+            );
 
-            // 4. apply colors
-            groups.forEach((grp, idx) => {
-                if (greenIndices.includes(idx))       grp.setAttribute("fill", "#18910b");
-                else if (yellowIndices.includes(idx))  grp.setAttribute("fill", "#ffbb0c");
-                else                                   grp.setAttribute("fill", "#d9d9d9");
+            // first greenCount go green, next yellowCount go yellow
+            const greenIdxs  = new Set(idxs.slice(0, data.greenCount));
+            const yellowIdxs = new Set(idxs.slice(data.greenCount));
+
+            // color the eligible groups at those positions
+            eligibleGroups.forEach((grp, i) => {
+            if (greenIdxs.has(i))      grp.setAttribute("fill", "#18910b");
+            else if (yellowIdxs.has(i)) grp.setAttribute("fill", "#ffbb0c");
             });
-            }
+
+            // reset any beyond totalToColor back to gray
+            groups.slice(totalToColor).forEach(grp => {
+            grp.setAttribute("fill", "#d9d9d9");
+            });
+        }
+
         if (data.action === "fillSequential") {
-            const gCount = data.greenCount;
-            const yCount = data.yellowCount;
-            const total  = gCount + yCount;
+            // total sequential fills
+            const g = data.greenCount, y = data.yellowCount;
+            const total = g + y;
+
+            // now color the first g green, next y yellow, rest gray
             groups.forEach((grp, i) => {
-            if (i < gCount)             grp.setAttribute("fill", "#18910b");
-            else if (i < total)         grp.setAttribute("fill", "#ffbb0c");
-            else                        grp.setAttribute("fill", "#d9d9d9");
+            if (i < g)        grp.setAttribute("fill", "#18910b");
+            else if (i < total) grp.setAttribute("fill", "#ffbb0c");
+            else                grp.setAttribute("fill", "#d9d9d9");
             });
         }
     });
