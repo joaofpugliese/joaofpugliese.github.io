@@ -94,11 +94,14 @@
 
                     // compute **within‐block** counts
                     const newG = data.greenCount  - data.prevGreenCount;
-                    const newY = data.yellowCount - data.prevYellowCount;                    
+                    const newY = data.yellowCount - data.prevYellowCount;       
+                    
+                    console.log("newG", newG, "newY", newY)
 
                     region.forEach((g,i) => {
-                        if      (i < data.newG)                g.setAttribute("fill", "#18910b");
-                        else if (i < data.newG + data.newY)
+                        console.log(i, g);
+                        if      (i < newG)                g.setAttribute("fill", "#18910b");
+                        else if (i < newG + newY)
                                                                     g.setAttribute("fill", "#ffbb0c");
                         else                                         g.setAttribute("fill", "black");
                     });
