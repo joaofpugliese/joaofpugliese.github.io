@@ -92,9 +92,13 @@
                     const length = data.newBlackCount;
                     const region = groups.slice(offset, offset + length);
 
+                    // compute **within‐block** counts
+                    const newG = data.greenCount  - data.prevGreenCount;
+                    const newY = data.yellowCount - data.prevYellowCount;                    
+
                     region.forEach((g,i) => {
-                        if      (i < data.greenCount)                g.setAttribute("fill", "#18910b");
-                        else if (i < data.greenCount + data.yellowCount)
+                        if      (i < data.newG)                g.setAttribute("fill", "#18910b");
+                        else if (i < data.newG + data.newY)
                                                                     g.setAttribute("fill", "#ffbb0c");
                         else                                         g.setAttribute("fill", "black");
                     });
