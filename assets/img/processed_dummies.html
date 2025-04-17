@@ -14,8 +14,7 @@
     <script>
     window.addEventListener("message", function(event) {
         // accept messages only from your Qualtrics origin
-        const allowed = "https://stanforduniversity.qualtrics.com";
-        if (event.origin !== allowed) return;
+        if (event.origin !== "https://stanforduniversity.qualtrics.com") return;
 
         const data = event.data;
         const svgDoc = document.getElementById("dummiesSvg")?.getSVGDocument();
@@ -27,16 +26,24 @@
                 if (grp) grp.setAttribute("fill", i <= data.numLit ? "black" : "#d9d9d9");
             }
         }
-        if (data.action === "randomFillColors") {
+        if (data.action === "fillRandom") {
             const green = new Set(data.greenIndices);
             const yellow = new Set(data.yellowIndices);
-            for (let i = 1; i <= 200; i++) {
-                const grp = svgDoc.getElementById("dummy-" + i);
-                if (!grp) continue;
-                if (green.has(i-1)) grp.setAttribute("fill", "green");
-                else if (yellow.has(i-1)) grp.setAttribute("fill", "yellow");
-                else grp.setAttribute("fill", "#d9d9d9");
-            }
+            groups.forEach((grp, i) => {
+            if (green.has(i))       grp.setAttribute("fill", "#18910b");
+            else if (yellow.has(i)) grp.setAttribute("fill", "#ffbb0c");
+            else                    grp.setAttribute("fill", "#d9d9d9");
+            });
+        }
+        if (data.action === "fillSequential") {
+            const gCount = data.greenCount;
+            const yCount = data.yellowCount;
+            const total  = gCount + yCount;
+            groups.forEach((grp, i) => {
+            if (i < gCount)             grp.setAttribute("fill", "#18910b");
+            else if (i < total)         grp.setAttribute("fill", "#ffbb0c");
+            else                        grp.setAttribute("fill", "#d9d9d9");
+            });
         }
     });
     </script>
