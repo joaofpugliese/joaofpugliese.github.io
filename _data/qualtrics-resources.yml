@@ -22,7 +22,7 @@
   title: Embedding YouTube Video with Trackers
   functionality: JavaScript, HTML
   summary: Embed a YouTube video with trackers to measure time spent on the video.
-  long_description: >
+  long_description: |
     This script allows you to embed a YouTube video in a Qualtrics survey and track the time spent on the video. It uses the YouTube IFrame API to control the video playback and send tracking data to Qualtrics. The script includes functions to start and stop tracking when the video is played or paused, and it sends the tracking data as embedded data to Qualtrics. The script also includes a function to handle the end of the video and send the final tracking data. This script is useful for surveys that include video content and want to measure participant engagement with the video. You have to add the HTML code to the question body and the JavaScript code to the question's JavaScript section. The video ID must be specified in the HTML code. Also useful if you want to randomize videos and send the ID through Embedded Data.
 
     <h4>Summary of the Embedded Data Saved</h4>
