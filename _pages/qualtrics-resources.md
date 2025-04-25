@@ -36,7 +36,9 @@ This page collects small scripts and code snippets for enhancing Qualtrics surve
 
 ### {{ resource.title }}
 
-**Description**:{{ resource.long_description }}
+**Description**:
+
+{{ resource.long_description }}
 
 - **Resources**:
   {% for file in resource.files %}
