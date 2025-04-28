@@ -25,7 +25,7 @@
   long_description: |
     This script allows you to embed a YouTube video in a Qualtrics survey and track the time spent on the video. It uses the YouTube IFrame API to control the video playback and send tracking data to Qualtrics. The script includes functions to start and stop tracking when the video is played or paused, and it sends the tracking data as embedded data to Qualtrics. The script also includes a function to handle the end of the video and send the final tracking data. This script is useful for surveys that include video content and want to measure participant engagement with the video. You have to add the HTML code to the question body and the JavaScript code to the question's JavaScript section. The video ID must be specified in the HTML code. Also useful if you want to randomize videos and send the ID through Embedded Data.
     
-    <h4>Summary of the Embedded Data Saved</h4>
+    <h5>Summary of the Embedded Data Saved</h5>
     <table class="summary-table">
       <thead>
         <tr><th>Embedded Data</th><th>Meaning</th></tr>
@@ -56,6 +56,6 @@
     The full implementation of this code is not straightforward. First, my website hosts a specific ".svg" image, which is a type of archive used for dynamic images. Each image is constructed through vectors using specific code. In this example, I have a set of 200 dummies in a 5 x 40 lineup. The image is hosted here: [Dummy Image](https://joaofpugliese.github.io/assets/img/processed_dummies_5_by_40.svg). The Qualtrics JavaScript posts a message to a HTML script hosted on my website [here](ttps://joaofpugliese.github.io/assets/img/processed_dummies.html). The HTML script is a simple iframe that receives the message and updates the image accordingly, passing color attributes to the ".svg" code. Therefore, if you are looking to implement specific instances of this code you might require different ".svg" files, different actions set-up in the website HTML, or different colors. For instance, my code constains an action called "lightUpBlack", which is used to paint the grayed-out dummies into black dummies as the slider moves.
   files:
     - slider-dummy-question-html.txt
-    - slider-dummy-js.txt
     - slider-dummy-external-html.txt
+    - slider-dummy-js.txt
   has_download: true  

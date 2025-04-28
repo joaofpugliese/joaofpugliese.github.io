@@ -34,7 +34,7 @@ This page collects small scripts and code snippets for enhancing Qualtrics surve
 
 {% for resource in site.data.qualtrics-resources %}
 
-### {{ resource.title }}
+<h3 id="{{ resource.id }}">{{ resource.title }}</h3>
 
 **Description**:
 
