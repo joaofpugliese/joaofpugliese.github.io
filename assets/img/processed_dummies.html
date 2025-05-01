@@ -38,6 +38,11 @@
                     g.setAttribute("fill", i < data.numLit ? "black" : "#d9d9d9")
                   );
                 }
+                else if (data.action === "lightUpGray") {
+                  groups.forEach((g,i) =>
+                    g.setAttribute("fill", i < data.numLit ? "#444444" : "#d9d9d9")
+                  );
+                }                
                 else if (data.action === "fillInitial") {
                     // first paint prevGreenCount green, then newBlackCount black, then prevYellowCount yellow
                     const   gCount = data.prevGreenCount,
