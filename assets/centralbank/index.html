@@ -1,0 +1,131 @@
+---
+layout: page
+title: Central Bank Code Repository
+description: Download central bank related code and data files
+---
+
+<style>
+.code-repository {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.file-section {
+    margin-bottom: 30px;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #f8f9fa;
+}
+
+.file-section h3 {
+    margin-top: 0;
+    color: #0366d6;
+    border-bottom: 2px solid #0366d6;
+    padding-bottom: 10px;
+}
+
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin: 10px 0;
+    background-color: white;
+    border: 1px solid #d1d5da;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.file-item:hover {
+    background-color: #f1f8ff;
+}
+
+.file-info {
+    flex: 1;
+}
+
+.file-name {
+    font-weight: bold;
+    color: #24292e;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.file-name:hover {
+    color: #0366d6;
+    text-decoration: underline;
+}
+
+.file-date {
+    font-size: 0.9em;
+    color: #586069;
+}
+
+.download-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.download-btn:hover {
+    background-color: #218838;
+    color: white;
+    text-decoration: none;
+}
+
+.file-size {
+    font-size: 0.8em;
+    color: #6a737d;
+    margin-left: 10px;
+}
+</style>
+
+<div class="code-repository">
+    <h2>Central Bank Code Repository</h2>
+    <p>Download the latest central bank related code and data files. Files are organized by upload date.</p>
+    
+    <div class="file-section">
+        <h3>📁 Latest Code Upload</h3>
+        <div class="file-item">
+            <div class="file-info">
+                <a href="./transfer_to_server_20250827_114336.zip" class="file-name">transfer_to_server_20250827_114336.zip</a>
+                <div class="file-date">📅 Uploaded: August 27, 2025 at 11:43:36</div>
+            </div>
+            <a href="./transfer_to_server_20250827_114336.zip" class="download-btn">Download</a>
+        </div>
+    </div>
+    
+    <div class="file-section">
+        <h3>📂 Previous Code Uploads</h3>
+        <p style="color: #6a737d; font-style: italic;">No previous uploads yet. Future uploads will appear here, sorted by date (newest first).</p>
+        
+        <!-- Template for future files - uncomment and duplicate as needed:
+        <div class="file-item">
+            <div class="file-info">
+                <a href="./transfer_to_server_YYYYMMDD_HHMMSS.zip" class="file-name">transfer_to_server_YYYYMMDD_HHMMSS.zip</a>
+                <div class="file-date">📅 Uploaded: Month DD, YYYY at HH:MM:SS</div>
+            </div>
+            <a href="./transfer_to_server_YYYYMMDD_HHMMSS.zip" class="download-btn">Download</a>
+        </div>
+        -->
+    </div>
+    
+    <div style="margin-top: 40px; padding: 20px; background-color: #f1f8ff; border-left: 4px solid #0366d6; border-radius: 4px;">
+        <h4>📋 Instructions for Adding New Files</h4>
+        <ol>
+            <li>Upload your new zip file to this <code>assets/centralbank/</code> folder</li>
+            <li>Update this <code>index.html</code> file to include the new file in the appropriate section</li>
+            <li>Move the previous "Latest" file to the "Previous" section</li>
+            <li>Parse the date from the filename format: <code>transfer_to_server_YYYYMMDD_HHMMSS.zip</code></li>
+            <li>Commit and push your changes</li>
+        </ol>
+    </div>
+</div>
