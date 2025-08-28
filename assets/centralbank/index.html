@@ -4,6 +4,17 @@ title: Central Bank Code Repository
 description: Download central bank related code and data files
 ---
 
+{% comment %}
+This page automatically lists all zip files in the centralbank folder
+Files are sorted by date extracted from filename: transfer_to_server_YYYYMMDD_HHMMSS.zip
+{% endcomment %}
+
+{% assign centralbank_files = site.static_files | where: "path", "/assets/centralbank/" %}
+{% assign zip_files = centralbank_files | where_exp: "file", "file.name contains '.zip'" %}
+
+{% comment %} Sort files by extracting date from filename {% endcomment %}
+{% assign sorted_files = zip_files | sort: "name" | reverse %}
+
 <style>
 .code-repository {
     max-width: 800px;
@@ -91,37 +102,71 @@ description: Download central bank related code and data files
 <div class="code-repository">
     <p>Files are organized by upload date.</p>
     
-    <div class="file-section">
-        <h3>📁 Latest Code Upload</h3>
-        <div class="file-item">
-            <div class="file-info">
-                <a href="./transfer_to_server_20250828_110615.zip" class="file-name">transfer_to_server_20250828_110615.zip</a>
-                <div class="file-date">📅 Uploaded: August 28, 2025 at 11:06:15</div>
+    {% if sorted_files.size > 0 %}
+        {% assign latest_file = sorted_files[0] %}
+        
+        <div class="file-section">
+            <h3>📁 Latest Code Upload</h3>
+            <div class="file-item">
+                <div class="file-info">
+                    <a href="{{ latest_file.path }}" class="file-name">{{ latest_file.basename }}</a>
+                    {% assign filename = latest_file.basename %}
+                    {% assign date_part = filename | remove: "transfer_to_server_" | remove: ".zip" %}
+                    {% assign year = date_part | slice: 0, 4 %}
+                    {% assign month = date_part | slice: 4, 2 %}
+                    {% assign day = date_part | slice: 6, 2 %}
+                    {% assign hour = date_part | slice: 9, 2 %}
+                    {% assign minute = date_part | slice: 11, 2 %}
+                    {% assign second = date_part | slice: 13, 2 %}
+                    
+                    {% assign month_names = "January,February,March,April,May,June,July,August,September,October,November,December" | split: "," %}
+                    {% assign month_index = month | minus: 1 %}
+                    {% assign month_name = month_names[month_index] %}
+                    
+                    <div class="file-date">📅 Uploaded: {{ month_name }} {{ day }}, {{ year }} at {{ hour }}:{{ minute }}:{{ second }}</div>
+                </div>
+                <a href="{{ latest_file.path }}" class="download-btn">Download</a>
             </div>
-            <a href="./transfer_to_server_20250828_110615.zip" class="download-btn">Download</a>
-        </div>
-    </div>
-    
-    <div class="file-section">
-        <h3>📂 Previous Code Uploads</h3>
-        <div class="file-item">
-            <div class="file-info">
-                <a href="./transfer_to_server_20250827_114336.zip" class="file-name">transfer_to_server_20250827_114336.zip</a>
-                <div class="file-date">📅 Uploaded: August 27, 2025 at 11:43:36</div>
-            </div>
-            <a href="./transfer_to_server_20250827_114336.zip" class="download-btn">Download</a>
         </div>
         
-        <!-- Template for future files - uncomment and duplicate as needed:
-        <div class="file-item">
-            <div class="file-info">
-                <a href="./transfer_to_server_YYYYMMDD_HHMMSS.zip" class="file-name">transfer_to_server_YYYYMMDD_HHMMSS.zip</a>
-                <div class="file-date">📅 Uploaded: Month DD, YYYY at HH:MM:SS</div>
+        {% if sorted_files.size > 1 %}
+            <div class="file-section">
+                <h3>📂 Previous Code Uploads</h3>
+                {% for file in sorted_files offset:1 %}
+                    <div class="file-item">
+                        <div class="file-info">
+                            <a href="{{ file.path }}" class="file-name">{{ file.basename }}</a>
+                            {% assign filename = file.basename %}
+                            {% assign date_part = filename | remove: "transfer_to_server_" | remove: ".zip" %}
+                            {% assign year = date_part | slice: 0, 4 %}
+                            {% assign month = date_part | slice: 4, 2 %}
+                            {% assign day = date_part | slice: 6, 2 %}
+                            {% assign hour = date_part | slice: 9, 2 %}
+                            {% assign minute = date_part | slice: 11, 2 %}
+                            {% assign second = date_part | slice: 13, 2 %}
+                            
+                            {% assign month_names = "January,February,March,April,May,June,July,August,September,October,November,December" | split: "," %}
+                            {% assign month_index = month | minus: 1 %}
+                            {% assign month_name = month_names[month_index] %}
+                            
+                            <div class="file-date">📅 Uploaded: {{ month_name }} {{ day }}, {{ year }} at {{ hour }}:{{ minute }}:{{ second }}</div>
+                        </div>
+                        <a href="{{ file.path }}" class="download-btn">Download</a>
+                    </div>
+                {% endfor %}
             </div>
-            <a href="./transfer_to_server_YYYYMMDD_HHMMSS.zip" class="download-btn">Download</a>
+        {% else %}
+            <div class="file-section">
+                <h3>📂 Previous Code Uploads</h3>
+                <p style="color: #6a737d; font-style: italic;">No previous uploads yet. Future uploads will appear here automatically.</p>
+            </div>
+        {% endif %}
+        
+    {% else %}
+        <div class="file-section">
+            <p style="color: #6a737d; font-style: italic;">No zip files found in the centralbank folder.</p>
         </div>
-        -->
-    </div>
+    {% endif %}
     
 
 </div>
