@@ -13,8 +13,38 @@ Jekyll will scan the folder and include any zip files automatically
 {% assign centralbank_files = all_files | where_exp: "file", "file.path contains '/assets/centralbank/'" %}
 {% assign zip_files = centralbank_files | where_exp: "file", "file.path contains '.zip'" %}
 
-{% comment %} Custom sorting by filename date {% endcomment %}
-{% assign sorted_files = zip_files | sort: "name" | reverse %}
+{% comment %} Create array with date-sortable keys {% endcomment %}
+{% assign files_with_dates = "" | split: "" %}
+{% for file in zip_files %}
+    {% assign filename = file.name %}
+    {% if filename contains "transfer_to_" %}
+        {% assign name_parts = filename | split: "_" %}
+        {% if name_parts.size >= 4 %}
+            {% assign date_part = name_parts[3] %}
+            {% assign time_part = name_parts[4] | remove: ".zip" %}
+            {% assign sort_key = date_part | append: "_" | append: time_part %}
+            {% assign file_entry = sort_key | append: "|" | append: file.name | append: "|" | append: file.path %}
+            {% assign files_with_dates = files_with_dates | push: file_entry %}
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+{% comment %} Sort by the date key and reverse for newest first {% endcomment %}
+{% assign sorted_file_entries = files_with_dates | sort | reverse %}
+
+{% comment %} Extract the sorted files {% endcomment %}
+{% assign sorted_files = "" | split: "" %}
+{% for entry in sorted_file_entries %}
+    {% assign entry_parts = entry | split: "|" %}
+    {% assign file_name = entry_parts[1] %}
+    {% assign file_path = entry_parts[2] %}
+    {% for original_file in zip_files %}
+        {% if original_file.name == file_name %}
+            {% assign sorted_files = sorted_files | push: original_file %}
+            {% break %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
 
 <style>
 .code-repository {
