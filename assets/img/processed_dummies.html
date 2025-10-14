@@ -1,164 +1,173 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Dummies</title>
-    <style>
-        html, body { margin:0; padding:0; overflow:hidden; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Dummies</title>
+  <style>
+    html, body { margin:0; padding:0; overflow:hidden; }
+  </style>
 </head>
 <body>
-    <embed id="dummiesSvg" src="processed_dummies_5_by_40.svg" type="image/svg+xml" style="width:100%; height:auto; border:none; display:block;">
+  <embed id="dummiesSvg" src="processed_dummies_5_by_40.svg" type="image/svg+xml" style="width:100%; height:auto; border:none; display:block;">
 
-        <script>
-            (function() {
-              const VALID_ORIGIN = "qualtrics.com";
-              let svgReady = false;
-              const queue = [];
-            
-              function shuffleArray(arr) {
-                let cur = arr.length, tmp, rand;
-                while (cur) {
-                  rand = Math.floor(Math.random() * cur--);
-                  tmp = arr[cur];
-                  arr[cur] = arr[rand];
-                  arr[rand] = tmp;
-                }
-                return arr;
-              }
-            
-              function paint(data) {
-                const svgDoc = document.getElementById("dummiesSvg").getSVGDocument();
-                const groups = Array.from(svgDoc.querySelectorAll("g[id^='dummy-']"));
-            
-                if (data.action === "lightUpBlack") {
-                  groups.forEach((g,i) =>
-                    g.setAttribute("fill", i < data.numLit ? "black" : "#d9d9d9")
-                  );
-                }
-                else if (data.action === "lightUpGray") {
-                  groups.forEach((g,i) =>
-                    g.setAttribute("fill", i < data.numLit ? "#444444" : "#d9d9d9")
-                  );
-                }                
-                else if (data.action === "fillInitial") {
-                    // first paint prevGreenCount green, then newBlackCount black, then prevYellowCount yellow
-                    const   gCount = data.prevGreenCount,
-                            bCount = data.newBlackCount,
-                            yCount = data.prevYellowCount;
-                    groups.forEach((grp,i) => {
-                    if      (i < gCount)                   grp.setAttribute("fill", "#175c10");
-                    else if (i < gCount + bCount)          grp.setAttribute("fill", "black");
-                    else if (i < gCount + bCount + yCount) grp.setAttribute("fill", "#d99e04");
-                    else                                   grp.setAttribute("fill", "#d9d9d9");
-                    });
-                }                
-                else if (data.action === "fillRandom") {
-                  const total = data.greenCount + data.yellowCount;
-                  const region = groups.slice(0, total);
-                  const idxs   = shuffleArray([...Array(total).keys()]);
-                  const gSet   = new Set(idxs.slice(0, data.greenCount));
-                  const ySet   = new Set(idxs.slice(data.greenCount));
-                  region.forEach((g,i) => {
-                    if (gSet.has(i))      g.setAttribute("fill", "#18910b");
-                    else if (ySet.has(i)) g.setAttribute("fill", "#ffbb0c");
-                  });
-                  groups.slice(total).forEach(g => g.setAttribute("fill", "#d9d9d9"));
-                }
-                else if (data.action === "fillSequential") {
-                  const g = data.greenCount, y = data.yellowCount, tot = g+y;
-                  groups.forEach((grp,i) => {
-                    if      (i < g)   grp.setAttribute("fill", "#18910b");
-                    else if (i < tot) grp.setAttribute("fill", "#ffbb0c");
-                    else              grp.setAttribute("fill", "#d9d9d9");
-                  });
-                }
-                else if (data.action === "fillRandom2") {
-                    // only randomize inside the middle black block
-                    const offset = data.prevGreenCount;
-                    const length = data.newBlackCount;
-                    const region = groups.slice(offset, offset + length);
+  <script>
+  (function () {
+    let svgReady = false;
+    const queue = [];
 
-                    const idxs = shuffleArray([...Array(length).keys()]);
-                    const gSet = new Set(idxs.slice(0, data.greenCount));
-                    const ySet = new Set(idxs.slice(data.greenCount));
+    function shuffleArray(arr) {
+      let cur = arr.length, tmp, rand;
+      while (cur) {
+        rand = Math.floor(Math.random() * cur--);
+        tmp = arr[cur];
+        arr[cur] = arr[rand];
+        arr[rand] = tmp;
+      }
+      return arr;
+    }
 
-                    region.forEach((g,i) => {
-                        if      (gSet.has(i)) g.setAttribute("fill", "#18910b");
-                        else if (ySet.has(i)) g.setAttribute("fill", "#ffbb0c");
-                        else                  g.setAttribute("fill", "black");
-                    });
-                }
-                else if (data.action === "fillSequential2") {
-                    // only sequentially fill inside the middle black block
-                    const offset = data.prevGreenCount;
-                    const length = data.newBlackCount;
-                    const region = groups.slice(offset, offset + length);
+    function paint(data) {
+      const svgDoc = document.getElementById("dummiesSvg").getSVGDocument();
+      const groups = Array.from(svgDoc.querySelectorAll("g[id^='dummy-']"));
 
-                    // compute **within‐block** counts
-                    const newG = data.greenCount  - data.prevGreenCount;
-                    const newY = data.yellowCount - data.prevYellowCount;       
-                    
-                    console.log("newG", newG, "newY", newY)
+      if (data.action === "lightUpBlack") {
+        groups.forEach((g,i) =>
+          g.setAttribute("fill", i < data.numLit ? "black" : "#d9d9d9")
+        );
+      }
+      else if (data.action === "lightUpGray") {
+        groups.forEach((g,i) =>
+          g.setAttribute("fill", i < data.numLit ? "#444444" : "#d9d9d9")
+        );
+      }
+      else if (data.action === "fillInitial") {
+        const gCount = data.prevGreenCount,
+              bCount = data.newBlackCount,
+              yCount = data.prevYellowCount;
+        groups.forEach((grp,i) => {
+          if      (i < gCount)                   grp.setAttribute("fill", "#175c10");
+          else if (i < gCount + bCount)          grp.setAttribute("fill", "black");
+          else if (i < gCount + bCount + yCount) grp.setAttribute("fill", "#d99e04");
+          else                                    grp.setAttribute("fill", "#d9d9d9");
+        });
+      }
+      else if (data.action === "fillRandom") {
+        const total = data.greenCount + data.yellowCount;
+        const region = groups.slice(0, total);
+        const idxs   = shuffleArray([...Array(total).keys()]);
+        const gSet   = new Set(idxs.slice(0, data.greenCount));
+        const ySet   = new Set(idxs.slice(data.greenCount));
+        region.forEach((g,i) => {
+          if (gSet.has(i))      g.setAttribute("fill", "#18910b");
+          else if (ySet.has(i)) g.setAttribute("fill", "#ffbb0c");
+        });
+        groups.slice(total).forEach(g => g.setAttribute("fill", "#d9d9d9"));
+      }
+      else if (data.action === "fillSequential") {
+        const g = data.greenCount, y = data.yellowCount, tot = g + y;
+        groups.forEach((grp,i) => {
+          if      (i < g)   grp.setAttribute("fill", "#18910b");
+          else if (i < tot) grp.setAttribute("fill", "#ffbb0c");
+          else              grp.setAttribute("fill", "#d9d9d9");
+        });
+      }
+      else if (data.action === "fillRandom2") {
+        const offset = data.prevGreenCount;
+        const length = data.newBlackCount;
+        const region = groups.slice(offset, offset + length);
 
-                    region.forEach((g,i) => {
-                        console.log(i, g);
-                        if      (i < newG)                g.setAttribute("fill", "#18910b");
-                        else if (i < newG + newY)
-                                                                    g.setAttribute("fill", "#ffbb0c");
-                        else                                         g.setAttribute("fill", "black");
-                    });
-                }                
-              }
-            
-              function tryFlush() {
-                const embed = document.getElementById("dummiesSvg");
-                if (!embed) return;
-                const svgDoc = embed.getSVGDocument();
-                if (!svgDoc) return;
-            
-                if (!svgReady) {
-                  svgReady = true;
-                  clearInterval(poller);
-                  // console.log("✔ SVG ready — flushing queued messages:", queue.length);
-                }
-            
-                // Always process everything in the queue
-                while (queue.length) {
-                  paint(queue.shift());
-                }
-              }
-            
-              // Poll fallback
-              const poller = setInterval(tryFlush, 100);
-            
-              // Attempt to flush on embed’s load event (where supported)
-              const embedEl = document.getElementById("dummiesSvg");
-              if (embedEl) embedEl.addEventListener("load", tryFlush);
-            
-              // Main listener
-              window.addEventListener("message", event => {
-                console.log("📩 message from", event.origin, event.data);
-                if (!event.origin.includes(VALID_ORIGIN)) {
-                  console.warn("Ignored origin", event.origin);
-                  return;
-                }
-            
-                if (svgReady) {
-                  // If we already know the SVG is loaded, paint immediately
-                  paint(event.data);
-                } else {
-                  // Otherwise queue + attempt a flush
-                  queue.push(event.data);
-                  tryFlush();
-                }
-              }, false);
-            
-              console.log("🔧 Dummies listener initialized");
-            })();
-            </script>
-                
+        const idxs = shuffleArray([...Array(length).keys()]);
+        const gSet = new Set(idxs.slice(0, data.greenCount));
+        const ySet = new Set(idxs.slice(data.greenCount));
+
+        region.forEach((g,i) => {
+          if      (gSet.has(i)) g.setAttribute("fill", "#18910b");
+          else if (ySet.has(i)) g.setAttribute("fill", "#ffbb0c");
+          else                  g.setAttribute("fill", "black");
+        });
+      }
+      else if (data.action === "fillSequential2") {
+        const offset = data.prevGreenCount;
+        const length = data.newBlackCount;
+        const region = groups.slice(offset, offset + length);
+
+        const newG = data.greenCount  - data.prevGreenCount;
+        const newY = data.yellowCount - data.prevYellowCount;
+
+        console.log("newG", newG, "newY", newY);
+
+        region.forEach((g,i) => {
+          console.log(i, g);
+          if      (i < newG)                g.setAttribute("fill", "#18910b");
+          else if (i < newG + newY)         g.setAttribute("fill", "#ffbb0c");
+          else                               g.setAttribute("fill", "black");
+        });
+      }
+    }
+
+    function tryFlush() {
+      const embed = document.getElementById("dummiesSvg");
+      if (!embed) return;
+      const svgDoc = embed.getSVGDocument();
+      if (!svgDoc) return;
+
+      if (!svgReady) {
+        svgReady = true;
+        clearInterval(poller);
+      }
+      while (queue.length) {
+        paint(queue.shift());
+      }
+    }
+
+    // Poll + load hook to know when the SVG is ready
+    const poller = setInterval(tryFlush, 100);
+    const embedEl = document.getElementById("dummiesSvg");
+    if (embedEl) embedEl.addEventListener("load", tryFlush);
+
+    // --- minimal, safer origin check for https://*.qualtrics.com ---
+    function isAllowedOrigin(origin) {
+      try {
+        const u = new URL(origin);
+        return u.protocol === "https:" &&
+               (u.hostname === "qualtrics.com" || u.hostname.endsWith(".qualtrics.com"));
+      } catch { return false; }
+    }
+
+    // Named listener + switch(action)
+    function onParentMessage(event) {
+      console.log("📩 message from", event.origin, event.data);
+      if (!isAllowedOrigin(event.origin)) return;
+
+      const data = event.data;
+      if (!data || typeof data !== "object" || !("action" in data)) return;
+
+      switch (data.action) {
+        case "lightUpBlack":
+        case "lightUpGray":
+        case "fillInitial":
+        case "fillRandom":
+        case "fillSequential":
+        case "fillRandom2":
+        case "fillSequential2":
+          if (svgReady) {
+            paint(data);
+          } else {
+            queue.push(data);
+            tryFlush();
+          }
+          break;
+        default:
+          // ignore unrelated messages
+          break;
+      }
+    }
+
+    window.addEventListener("message", onParentMessage, { passive: true });
+
+    console.log("🔧 Dummies listener initialized");
+  })();
+  </script>
 </body>
 </html>
