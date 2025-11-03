@@ -167,6 +167,10 @@
     window.addEventListener("message", onParentMessage, { passive: true });
 
     console.log("🔧 Dummies listener initialized");
+
+    // Signal to parent that iframe is ready to receive messages
+    window.parent.postMessage({ action: 'iframeReady' }, '*');
+    console.log("✅ Sent iframeReady signal to parent");    
   })();
   </script>
 </body>
