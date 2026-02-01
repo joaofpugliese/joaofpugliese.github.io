@@ -3,5 +3,21 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"files.associations": {
+			"*.md": "markdown",
+			"*.liquid": "liquid"
+		},
+		"markdown.preview.breaks": true,
+		"markdown.preview.linkify": true,
+		"[markdown]": {
+			"editor.wordWrap": "on",
+			"editor.quickSuggestions": {
+				"comments": "off",
+				"strings": "off",
+				"other": "off"
+			}
+		}
+	}
 }
