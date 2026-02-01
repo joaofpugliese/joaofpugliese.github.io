@@ -95,3 +95,19 @@
   type: list
   contents:
     - <u>Hobbies:</u> Hobby 1, Hobby 2, etc.
+
+- title: "Bob Weir Tribute"
+  slug: bob-weir-tribute
+  date: "January 2026"
+  location: "San Francisco, USA"
+  photo_count: 10
+  description: "Photos from Bob Weir's tribute (founding member of the Grateful Dead) in San Francisco, CA on January 17, 2026."
+  layout: grid
+
+- title: "Thanksgiving at Almanor and Lassen"
+  slug: thanksgiving-at-lassen
+  date: "November 2025"
+  location: "Lake Almanor and Lassen Volcanic National Park, CA"
+  photo_count: 10
+  description: "First time with the camera!"
+  layout: grid

@@ -1,0 +1,51 @@
+# Photography Albums Configuration
+# ================================
+# Add your photo albums here. Each album will appear on the main photography page.
+#
+# Required fields:
+#   - title: The album name displayed on the card
+#   - slug: URL-friendly identifier (used in URL: /photography/[slug]/)
+#   - date: When the photos were taken
+#   - location: Where the photos were taken
+#   - photo_count: Number of photos in the album
+#
+# Optional fields:
+#   - description: A brief description shown on the album page
+#   - layout: 'grid', 'masonry', or 'horizontal-strips' (default: grid)
+
+# Active albums:
+
+- title: "Example Album"
+  slug: example-album
+  date: "January 2025"
+  location: "Your Location"
+  photo_count: 3
+  description: "This is an example album to demonstrate the photography gallery."
+  layout: grid
+
+# More example albums (uncomment and modify to use):
+
+# - title: "California Coast"
+#   slug: california-coast
+#   date: "Summer 2024"
+#   location: "California, USA"
+#   photo_count: 12
+#   description: "A road trip along Highway 1, capturing the rugged beauty of the Pacific coastline."
+#   layout: masonry
+
+# - title: "São Paulo Streets"
+#   slug: sao-paulo-streets
+#   date: "March 2023"
+#   location: "São Paulo, Brazil"
+#   photo_count: 8
+#   description: "Urban scenes and daily life in Brazil's largest metropolis."
+#   layout: grid
+
+# - title: "Stanford Campus"
+#   slug: stanford-campus
+#   date: "Fall 2024"
+#   location: "Palo Alto, CA"
+#   photo_count: 15
+#   description: "The beautiful architecture and landscapes of Stanford University."
+#   layout: horizontal-strips
+

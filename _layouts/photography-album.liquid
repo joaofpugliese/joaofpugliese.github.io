@@ -1,0 +1,85 @@
+---
+layout: default
+---
+<link rel="stylesheet" href="{{ '/assets/css/photography.css' | relative_url }}">
+
+<div class="post">
+  <a href="{{ site.baseurl }}/photography/" class="back-to-albums">All Albums</a>
+  
+  <header class="album-header">
+    <h1>{{ page.title }}</h1>
+    <div class="album-meta">
+      <span>📍 {{ page.location }}</span>
+      <span>📅 {{ page.date }}</span>
+      <span>📷 {{ page.photos | size }} photos</span>
+    </div>
+    {% if page.description %}
+    <p class="album-description">{{ page.description }}</p>
+    {% endif %}
+  </header>
+
+  <article>
+    {% assign layout_class = page.gallery_layout | default: 'grid' %}
+    
+    {% if layout_class == 'horizontal-strips' %}
+      <!-- Horizontal Strips Layout -->
+      <div class="photo-gallery horizontal-strips">
+        {% assign photos_per_strip = 4 %}
+        {% assign photo_count = page.photos | size %}
+        {% assign strip_count = photo_count | divided_by: photos_per_strip | plus: 1 %}
+        
+        {% for i in (1..strip_count) %}
+          {% assign start = i | minus: 1 | times: photos_per_strip %}
+          {% assign end = start | plus: photos_per_strip | minus: 1 %}
+          <div class="photo-strip">
+            {% for photo in page.photos limit: photos_per_strip offset: start %}
+              <div class="photo-item">
+                <img src="{{ site.baseurl }}/assets/img/photography/{{ page.album_slug }}/{{ photo.filename }}" 
+                     alt="{{ photo.caption | default: page.title }}"
+                     loading="lazy">
+                {% if photo.caption %}
+                <div class="photo-caption">{{ photo.caption }}</div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+    
+    {% elsif layout_class == 'masonry' %}
+      <!-- Masonry Layout -->
+      <div class="photo-gallery masonry">
+        {% for photo in page.photos %}
+          <div class="photo-item">
+            <img src="{{ site.baseurl }}/assets/img/photography/{{ page.album_slug }}/{{ photo.filename }}" 
+                 alt="{{ photo.caption | default: page.title }}"
+                 loading="lazy">
+            {% if photo.caption %}
+            <div class="photo-caption">{{ photo.caption }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    
+    {% else %}
+      <!-- Default Grid Layout -->
+      <div class="photo-gallery">
+        {% for photo in page.photos %}
+          <div class="photo-item">
+            <img src="{{ site.baseurl }}/assets/img/photography/{{ page.album_slug }}/{{ photo.filename }}" 
+                 alt="{{ photo.caption | default: page.title }}"
+                 loading="lazy">
+            {% if photo.caption %}
+            <div class="photo-caption">{{ photo.caption }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {{ content }}
+  </article>
+</div>
+
+
+
