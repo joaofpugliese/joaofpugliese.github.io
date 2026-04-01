@@ -49,7 +49,7 @@
       }
       grp.querySelectorAll("path").forEach(function (p) {
         p.setAttribute("stroke", "#1a1a1a");
-        p.setAttribute("stroke-width", "0.25");
+        p.setAttribute("stroke-width", "1.25");
         p.setAttribute("paint-order", "stroke fill");
         p.setAttribute("vector-effect", "non-scaling-stroke");
       });
@@ -231,8 +231,14 @@
     if (embedEl) embedEl.addEventListener("load", tryFlush);
 
     function isAllowedOrigin(origin) {
+      if (origin === "null") {
+        return true;
+      }
       try {
         var u = new URL(origin);
+        if (u.hostname === "localhost" || u.hostname === "127.0.0.1") {
+          return u.protocol === "http:" || u.protocol === "https:";
+        }
         return u.protocol === "https:" &&
           (u.hostname === "qualtrics.com" || u.hostname.endsWith(".qualtrics.com"));
       } catch (e) { return false; }
