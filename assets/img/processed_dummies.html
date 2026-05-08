@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interactive Dummies</title>
-  <!-- Default: processed_dummies_4_by_25.svg (4x25, N=100). Alt: processed_dummies_5_by_20.svg (5x20, same N). -->
-  <!-- Qualtrics iframe padding-top: 4x25 -> ~26.2% (39.6/151.2); 5x20 -> ~40.6% (49.2/121.2 if using padded 5x20 SVG). -->
+  <!-- Default: processed_dummies_1_by_10.svg (1x10, N=10). Alt: processed_dummies_4_by_25.svg (4x25, N=100). -->
+  <!-- Qualtrics iframe padding-top: 1x10 -> ~16% (9.6/60). -->
   <style>
     html, body { margin:0; padding:0; overflow:hidden; line-height:0; }
   </style>
 </head>
 <body>
-  <embed id="dummiesSvg" src="processed_dummies_4_by_25.svg" type="image/svg+xml" style="width:100%; height:auto; max-height:100%; border:none; display:block; vertical-align:top;">
+  <embed id="dummiesSvg" src="processed_dummies_1_by_10.svg" type="image/svg+xml" style="width:100%; height:auto; max-height:100%; border:none; display:block; vertical-align:top;">
 
   <script>
   (function () {
@@ -78,7 +78,7 @@
     }
 
     function setDummyGreen(grp, hex) {
-      hex = hex || "#18910b";
+      hex = hex || "#2c807d";
       clearDummyCommitted(grp);
       if (!isLayered(grp)) {
         grp.setAttribute("fill", hex);
@@ -92,7 +92,7 @@
     }
 
     function setDummyYellow(grp, hex) {
-      hex = hex || "#ffbb0c";
+      hex = hex || "#E6B325";
       clearDummyCommitted(grp);
       if (!isLayered(grp)) {
         grp.setAttribute("fill", hex);
@@ -113,8 +113,8 @@
       grp.querySelectorAll(".dummy-base path").forEach(function (p) { p.setAttribute("fill", "#d9d9d9"); });
       var gr = grp.querySelector(".dummy-green");
       var yl = grp.querySelector(".dummy-yellow");
-      gr.querySelectorAll("path").forEach(function (p) { p.setAttribute("fill", "#18910b"); });
-      yl.querySelectorAll("path").forEach(function (p) { p.setAttribute("fill", "#ffbb0c"); });
+      gr.querySelectorAll("path").forEach(function (p) { p.setAttribute("fill", "#2c807d"); });
+      yl.querySelectorAll("path").forEach(function (p) { p.setAttribute("fill", "#E6B325"); });
       gr.setAttribute("style", "clip-path: inset(0 " + r + "% 0 0);");
       yl.setAttribute("style", "clip-path: inset(0 0 0 " + pGreen + "%);");
     }
@@ -142,7 +142,7 @@
           } else if (i < gCount + bCount) {
             setDummySolidColor(grp, "#000000");
           } else if (i < gCount + bCount + yCount) {
-            setDummyYellow(grp, "#d99e04");
+            setDummyYellow(grp, "#E6B325");
           } else {
             setDummyEmpty(grp);
           }
@@ -155,8 +155,8 @@
         var gSet = new Set(idxs.slice(0, data.greenCount));
         var ySet = new Set(idxs.slice(data.greenCount));
         region.forEach(function (g, i) {
-          if (gSet.has(i)) setDummyGreen(g, "#18910b");
-          else if (ySet.has(i)) setDummyYellow(g, "#ffbb0c");
+          if (gSet.has(i)) setDummyGreen(g, "#2c807d");
+          else if (ySet.has(i)) setDummyYellow(g, "#E6B325");
         });
         groups.slice(total).forEach(function (g) { setDummyEmpty(g); });
       } else if (data.action === "fillSequential") {
@@ -166,15 +166,15 @@
         var hasPart = typeof p === "number" && p > 0 && p < 100;
         groups.forEach(function (grp, i) {
           if (i < gC) {
-            setDummyGreen(grp, "#18910b");
+            setDummyGreen(grp, "#2c807d");
           } else if (hasPart && i === gC) {
             if (isLayered(grp)) setDummyPartial(grp, p);
-            else if (p >= 50) setDummyGreen(grp, "#18910b");
-            else setDummyYellow(grp, "#ffbb0c");
+            else if (p >= 50) setDummyGreen(grp, "#2c807d");
+            else setDummyYellow(grp, "#E6B325");
           } else if (!hasPart && i < gC + yC) {
-            setDummyYellow(grp, "#ffbb0c");
+            setDummyYellow(grp, "#E6B325");
           } else if (hasPart && i > gC && i <= gC + yC) {
-            setDummyYellow(grp, "#ffbb0c");
+            setDummyYellow(grp, "#E6B325");
           } else {
             setDummyEmpty(grp);
           }
@@ -187,8 +187,8 @@
         var gSet2 = new Set(idxs2.slice(0, data.greenCount));
         var ySet2 = new Set(idxs2.slice(data.greenCount));
         region.forEach(function (g, i) {
-          if (gSet2.has(i)) setDummyGreen(g, "#18910b");
-          else if (ySet2.has(i)) setDummyYellow(g, "#ffbb0c");
+          if (gSet2.has(i)) setDummyGreen(g, "#2c807d");
+          else if (ySet2.has(i)) setDummyYellow(g, "#E6B325");
           else setDummySolidColor(g, "#000000");
         });
         for (var pi = 0; pi < offset; pi++) {
@@ -201,8 +201,8 @@
         var newG = data.greenCount - data.prevGreenCount;
         var newY = data.yellowCount - data.prevYellowCount;
         region2.forEach(function (g, i) {
-          if (i < newG) setDummyGreen(g, "#18910b");
-          else if (i < newG + newY) setDummyYellow(g, "#ffbb0c");
+          if (i < newG) setDummyGreen(g, "#2c807d");
+          else if (i < newG + newY) setDummyYellow(g, "#E6B325");
           else setDummySolidColor(g, "#000000");
         });
         for (var pj = 0; pj < off; pj++) {
