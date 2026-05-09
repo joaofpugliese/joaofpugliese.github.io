@@ -120,6 +120,36 @@
       grp.querySelector(".dummy-yellow").setAttribute("style", "clip-path: inset(0 0 0 100%);");
     }
 
+    /** Integer 0–100: black from left, empty from right (for lightUpBlack partial fill). */
+    function setDummyPartialBlack(grp, pBlack) {
+      clearDummyCommitted(grp);
+      if (!isLayered(grp)) {
+        grp.setAttribute("fill", pBlack >= 50 ? "#000000" : "#d9d9d9");
+        return;
+      }
+      var r = 100 - pBlack;
+      grp.querySelectorAll(".dummy-base path").forEach(function (p) { p.setAttribute("fill", "#d9d9d9"); });
+      var gr = grp.querySelector(".dummy-green");
+      gr.querySelectorAll("path").forEach(function (p) { p.setAttribute("fill", "#000000"); });
+      gr.setAttribute("style", "clip-path: inset(0 " + r + "% 0 0);");
+      grp.querySelector(".dummy-yellow").setAttribute("style", "clip-path: inset(0 0 0 100%);");
+    }
+
+    /** Integer 0–100: dark teal from left, empty from right (for fillInitial committed prevGreen partial). */
+    function setDummyPartialDarkTeal(grp, pDarkTeal) {
+      clearDummyCommitted(grp);
+      if (!isLayered(grp)) {
+        grp.setAttribute("fill", pDarkTeal >= 50 ? "#175c5a" : "#d9d9d9");
+        return;
+      }
+      var r = 100 - pDarkTeal;
+      grp.querySelectorAll(".dummy-base path").forEach(function (p) { p.setAttribute("fill", "#d9d9d9"); });
+      var gr = grp.querySelector(".dummy-green");
+      gr.querySelectorAll("path").forEach(function (p) { p.setAttribute("fill", "#175c5a"); });
+      gr.setAttribute("style", "clip-path: inset(0 " + r + "% 0 0);");
+      grp.querySelector(".dummy-yellow").setAttribute("style", "clip-path: inset(0 0 0 100%);");
+    }
+
     /** Integer 0–100: green from left, yellow from right (artifact6-style clips). */
     function setDummyPartial(grp, pGreen) {
       clearDummyCommitted(grp);
@@ -139,8 +169,13 @@
       var groups = Array.from(svgDoc.querySelectorAll("g[id^='dummy-']"));
 
       if (data.action === "lightUpBlack") {
+        var numLitB = data.numLit;
+        var bpB = data.boundaryPartialPct;
+        var hasBPB = typeof bpB === "number" && bpB > 0 && bpB < 100;
         groups.forEach(function (g, i) {
-          setDummySolidColor(g, i < data.numLit ? "#000000" : "#d9d9d9");
+          if (i < numLitB) setDummySolidColor(g, "#000000");
+          else if (hasBPB && i === numLitB) setDummyPartialBlack(g, bpB);
+          else setDummySolidColor(g, "#d9d9d9");
         });
       } else if (data.action === "lightUpGray") {
         var numLit = data.numLit;
@@ -159,10 +194,14 @@
         var gCount = data.prevGreenCount;
         var bCount = data.newBlackCount;
         var yCount = data.prevYellowCount;
+        var pgbp = data.prevGreenBoundaryPct;
+        var hasPGBP = typeof pgbp === "number" && pgbp > 0 && pgbp < 100;
         groups.forEach(function (grp, i) {
-          var committed = (i < gCount) || (i >= gCount + bCount && i < gCount + bCount + yCount);
+          var committed = (i < gCount) || (hasPGBP && i === gCount) || (i >= gCount + bCount && i < gCount + bCount + yCount);
           if (i < gCount) {
             setDummyGreen(grp, "#175c5a");
+          } else if (hasPGBP && i === gCount) {
+            setDummyPartialDarkTeal(grp, pgbp);
           } else if (i < gCount + bCount) {
             setDummySolidColor(grp, "#000000");
           } else if (i < gCount + bCount + yCount) {
@@ -224,9 +263,13 @@
         var region2 = groups.slice(off, off + len);
         var newG = data.greenCount - data.prevGreenCount;
         var newY = data.yellowCount - data.prevYellowCount;
+        var bp2 = data.boundaryPartialPct;
+        var hasBP2 = typeof bp2 === "number" && bp2 > 0 && bp2 < 100;
         region2.forEach(function (g, i) {
           if (i < newG) setDummyGreen(g, "#2c807d");
-          else if (i < newG + newY) setDummyYellow(g, "#E6B325");
+          else if (hasBP2 && i === newG) { if (isLayered(g)) setDummyPartial(g, bp2); else if (bp2 >= 50) setDummyGreen(g, "#2c807d"); else setDummyYellow(g, "#E6B325"); }
+          else if (!hasBP2 && i < newG + newY) setDummyYellow(g, "#E6B325");
+          else if (hasBP2 && i > newG && i <= newG + newY) setDummyYellow(g, "#E6B325");
           else setDummySolidColor(g, "#000000");
         });
         for (var pj = 0; pj < off; pj++) {
