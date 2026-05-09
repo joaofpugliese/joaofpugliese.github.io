@@ -105,6 +105,21 @@
       grp.querySelector(".dummy-green").setAttribute("style", "clip-path: inset(0 100% 0 0);");
     }
 
+    /** Integer 0–100: gray from left, empty from right (for contemp1 partial fill). */
+    function setDummyPartialGray(grp, pGray) {
+      clearDummyCommitted(grp);
+      if (!isLayered(grp)) {
+        grp.setAttribute("fill", pGray >= 50 ? "#444444" : "#d9d9d9");
+        return;
+      }
+      var r = 100 - pGray;
+      grp.querySelectorAll(".dummy-base path").forEach(function (p) { p.setAttribute("fill", "#d9d9d9"); });
+      var gr = grp.querySelector(".dummy-green");
+      gr.querySelectorAll("path").forEach(function (p) { p.setAttribute("fill", "#444444"); });
+      gr.setAttribute("style", "clip-path: inset(0 " + r + "% 0 0);");
+      grp.querySelector(".dummy-yellow").setAttribute("style", "clip-path: inset(0 0 0 100%);");
+    }
+
     /** Integer 0–100: green from left, yellow from right (artifact6-style clips). */
     function setDummyPartial(grp, pGreen) {
       clearDummyCommitted(grp);
@@ -128,8 +143,17 @@
           setDummySolidColor(g, i < data.numLit ? "#000000" : "#d9d9d9");
         });
       } else if (data.action === "lightUpGray") {
+        var numLit = data.numLit;
+        var gp = data.boundaryPartialPct;
+        var hasGrayPart = typeof gp === "number" && gp > 0 && gp < 100;
         groups.forEach(function (g, i) {
-          setDummySolidColor(g, i < data.numLit ? "#444444" : "#d9d9d9");
+          if (i < numLit) {
+            setDummySolidColor(g, "#444444");
+          } else if (hasGrayPart && i === numLit) {
+            setDummyPartialGray(g, gp);
+          } else {
+            setDummySolidColor(g, "#d9d9d9");
+          }
         });
       } else if (data.action === "fillInitial") {
         var gCount = data.prevGreenCount;
@@ -138,7 +162,7 @@
         groups.forEach(function (grp, i) {
           var committed = (i < gCount) || (i >= gCount + bCount && i < gCount + bCount + yCount);
           if (i < gCount) {
-            setDummyGreen(grp, "#175c10");
+            setDummyGreen(grp, "#175c5a");
           } else if (i < gCount + bCount) {
             setDummySolidColor(grp, "#000000");
           } else if (i < gCount + bCount + yCount) {
