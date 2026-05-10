@@ -244,7 +244,6 @@
         var p = data.boundaryPartialPct;
         var hasPart = typeof p === "number" && p > 0 && p < 100;
         var endPct = data.endPartialPct;
-        var endGreenPct = typeof data.endGreenPct === "number" ? data.endGreenPct : 0;
         var hasEndPart = typeof endPct === "number" && endPct > 0 && endPct < 100;
         var endIdx = gC + yC + (hasPart ? 1 : 0);
         groups.forEach(function (grp, i) {
@@ -259,8 +258,8 @@
           } else if (hasPart && i > gC && i <= gC + yC) {
             setDummyYellow(grp, "#E6B325");
           } else if (hasEndPart && i === endIdx) {
-            if (isLayered(grp)) setDummyPartialEnd(grp, endGreenPct, endPct);
-            else setDummySolidColor(grp, endGreenPct >= endPct / 2 ? "#2c807d" : "#E6B325");
+            if (isLayered(grp)) setDummyPartialBlack(grp, endPct);
+            else setDummySolidColor(grp, "#000000");
           } else {
             setDummyEmpty(grp);
           }
@@ -283,7 +282,12 @@
       } else if (data.action === "fillSequential2") {
         var off = data.prevGreenCount;
         var len = data.newBlackCount;
-        var region2 = groups.slice(off, off + len);
+        var pgbp2 = data.prevGreenBoundaryPct;
+        var hasPGBP2 = typeof pgbp2 === "number" && pgbp2 > 0 && pgbp2 < 100;
+        // If committed partial boundary exists at groups[off], skip it from distribution
+        var distStart = off + (hasPGBP2 ? 1 : 0);
+        var distLen = len - (hasPGBP2 ? 1 : 0);
+        var region2 = groups.slice(distStart, distStart + distLen);
         var newG = data.greenCount - data.prevGreenCount;
         var newY = data.yellowCount - data.prevYellowCount;
         var bp2 = data.boundaryPartialPct;
@@ -297,6 +301,10 @@
         });
         for (var pj = 0; pj < off; pj++) {
           setDummyCommitted(groups[pj], true);
+        }
+        if (hasPGBP2) {
+          setDummyPartialDarkTeal(groups[off], pgbp2);
+          setDummyCommitted(groups[off], true);
         }
       }
     }
