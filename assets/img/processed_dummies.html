@@ -258,8 +258,8 @@
           } else if (hasPart && i > gC && i <= gC + yC) {
             setDummyYellow(grp, "#E6B325");
           } else if (hasEndPart && i === endIdx) {
-            if (isLayered(grp)) setDummyPartialBlack(grp, endPct);
-            else setDummySolidColor(grp, "#000000");
+            if (isLayered(grp)) setDummyPartialEnd(grp, 0, endPct);
+            else setDummySolidColor(grp, "#E6B325");
           } else {
             setDummyEmpty(grp);
           }
@@ -303,7 +303,7 @@
           setDummyCommitted(groups[pj], true);
         }
         if (hasPGBP2) {
-          setDummyPartialDarkTeal(groups[off], pgbp2);
+          setDummyGreen(groups[off], "#175c5a");
           setDummyCommitted(groups[off], true);
         }
       }
