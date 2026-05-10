@@ -150,6 +150,22 @@
       grp.querySelector(".dummy-yellow").setAttribute("style", "clip-path: inset(0 0 0 100%);");
     }
 
+    /** pGreen: green fills left 0→pGreen%; yellow fills pGreen%→pFilled%; empty pFilled%→100%. */
+    function setDummyPartialEnd(grp, pGreen, pFilled) {
+      clearDummyCommitted(grp);
+      if (!isLayered(grp)) {
+        grp.setAttribute("fill", pGreen > 0 ? "#2c807d" : pFilled > 0 ? "#E6B325" : "#d9d9d9");
+        return;
+      }
+      grp.querySelectorAll(".dummy-base path").forEach(function (p) { p.setAttribute("fill", "#d9d9d9"); });
+      var gr = grp.querySelector(".dummy-green");
+      var yl = grp.querySelector(".dummy-yellow");
+      gr.querySelectorAll("path").forEach(function (p) { p.setAttribute("fill", "#2c807d"); });
+      yl.querySelectorAll("path").forEach(function (p) { p.setAttribute("fill", "#E6B325"); });
+      gr.setAttribute("style", "clip-path: inset(0 " + (100 - pGreen) + "% 0 0);");
+      yl.setAttribute("style", "clip-path: inset(0 " + (100 - pFilled) + "% 0 " + pGreen + "%);");
+    }
+
     /** Integer 0–100: green from left, yellow from right (artifact6-style clips). */
     function setDummyPartial(grp, pGreen) {
       clearDummyCommitted(grp);
@@ -227,6 +243,10 @@
         var yC = data.yellowCount;
         var p = data.boundaryPartialPct;
         var hasPart = typeof p === "number" && p > 0 && p < 100;
+        var endPct = data.endPartialPct;
+        var endGreenPct = typeof data.endGreenPct === "number" ? data.endGreenPct : 0;
+        var hasEndPart = typeof endPct === "number" && endPct > 0 && endPct < 100;
+        var endIdx = gC + yC + (hasPart ? 1 : 0);
         groups.forEach(function (grp, i) {
           if (i < gC) {
             setDummyGreen(grp, "#2c807d");
@@ -238,6 +258,9 @@
             setDummyYellow(grp, "#E6B325");
           } else if (hasPart && i > gC && i <= gC + yC) {
             setDummyYellow(grp, "#E6B325");
+          } else if (hasEndPart && i === endIdx) {
+            if (isLayered(grp)) setDummyPartialEnd(grp, endGreenPct, endPct);
+            else setDummySolidColor(grp, endGreenPct >= endPct / 2 ? "#2c807d" : "#E6B325");
           } else {
             setDummyEmpty(grp);
           }
