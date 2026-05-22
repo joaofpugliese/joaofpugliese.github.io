@@ -68,7 +68,7 @@ h2 { font-size: 1.15rem; margin: 28px 0 10px; }
   border: 1px solid var(--line);
   margin: 8px 0;
 }
-.turn-banner.active { color: #fff; border: none; }
+.turn-banner.active { color: #111; border: none; }
 .turn-banner .count { font-weight: 400; opacity: .85; font-size: .85rem; }
 .slot-bg-C { background: var(--c); }
 .slot-bg-B { background: var(--b); }
