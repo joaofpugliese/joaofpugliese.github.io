@@ -185,7 +185,7 @@
       html += "<tr class='" + (isCurrent ? "current-player" : "") + "'>";
       html += "<td class='player-name'>" + p + "</td>";
       SLOTS.forEach(function (s) {
-        var t = byPlayerSlot[p][s];
+        var t = (byPlayerSlot[p] || {})[s];
         var here = isCurrent && turn.slot === s;
         if (t) {
           html += "<td class='cell filled'><img class='flag' alt='' src='" +
