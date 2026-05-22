@@ -84,7 +84,8 @@
     select: document.getElementById("player-select"),
     board: document.getElementById("players-board"),
     grid: document.getElementById("teams-grid"),
-    reset: document.getElementById("reset-btn")
+    reset: document.getElementById("reset-btn"),
+    undo: document.getElementById("undo-btn")
   };
 
   // Per-page lock: once you successfully pick, you cannot pick again until you
@@ -285,6 +286,34 @@
     });
   }
 
+  /* -------- UNDO LAST PICK ------------------------------------------------- */
+
+  function undoLast() {
+    if (!confirm("Desfazer a última escolha feita? Volta uma jogada para todos.")) return;
+    picksRef.transaction(function (picks) {
+      if (!picks) return; // nothing to undo
+      var lastCode = null, lastOrder = -1;
+      Object.keys(picks).forEach(function (code) {
+        var o = picks[code].order;
+        if (o > lastOrder) { lastOrder = o; lastCode = code; }
+      });
+      if (lastCode === null) return;
+      delete picks[lastCode];
+      return picks;
+    }, function (error, committed, snapshot) {
+      if (error) { showMessage("Erro ao desfazer: " + error.message, "error"); return; }
+      var picks = (snapshot && snapshot.val()) || {};
+      if (!committed && Object.keys(picks).length === 0) {
+        showMessage("Não há escolhas para desfazer.", "error");
+        return;
+      }
+      // Allow this page to pick again after an undo.
+      locked = false;
+      els.select.disabled = false;
+      showMessage("Última escolha desfeita.", "success");
+    });
+  }
+
   /* -------- RESET ---------------------------------------------------------- */
 
   function resetDraft() {
@@ -334,6 +363,7 @@
     });
 
     els.reset.addEventListener("click", resetDraft);
+    els.undo.addEventListener("click", undoLast);
   }
 
   if (document.readyState === "loading") {
