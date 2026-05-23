@@ -15,11 +15,28 @@ permalink: /bolao/
   <main id="bolao">
     <header class="bolao-header">
       <h1>🏆 Bolão Copa do Mundo</h1>
-      <p class="subtitle">Draft sequencial dos países &middot; Time C → Time B → Time A</p>
+      <p class="subtitle">Draft sequencial dos países &middot; Confronto do Dia &middot; Ranking</p>
     </header>
 
+    <!-- ===== LOGIN (código Pokémon) ===== -->
+    <section id="login-bar" class="login-bar">
+      <label for="code-input"><b>Seu código:</b></label>
+      <input id="code-input" type="text" placeholder="ex.: Pikachu" autocomplete="off" />
+      <button id="login-btn">Entrar</button>
+      <span id="who-am-i" class="who-am-i"></span>
+      <button id="logout-btn" class="logout-btn" hidden>Sair</button>
+    </section>
+    <div id="message" class="message" role="status"></div>
+
+    <!-- ===== CONFRONTO DIRETO DO DIA ===== -->
+    <section id="confronto-section" class="confronto-section">
+      <h2>⚔️ Confronto Direto do Dia <span id="confronto-date" class="hint"></span></h2>
+      <div id="confronto-body" class="confronto-body">Carregando…</div>
+    </section>
+
+    <!-- ===== DRAFT ===== -->
     <section class="legend">
-      <strong>Pontuação (por vitória do país no seu slot):</strong>
+      <strong>Pontuação do draft (por vitória do país, em qualquer jogo):</strong>
       <ul>
         <li><span class="badge slot-C">C</span> Vitória do Time C → <b>−1 ponto</b></li>
         <li><span class="badge slot-B">B</span> Vitória do Time B → <b>+2 pontos</b></li>
@@ -28,12 +45,6 @@ permalink: /bolao/
     </section>
 
     <div id="turn-banner" class="turn-banner">Conectando…</div>
-    <div id="message" class="message" role="status"></div>
-
-    <section class="picker">
-      <label for="player-select"><b>Quem é você?</b></label>
-      <select id="player-select"></select>
-    </section>
 
     <section class="board-section">
       <h2>Quadro de escolhas</h2>
@@ -43,20 +54,71 @@ permalink: /bolao/
     </section>
 
     <section class="grid-section">
-      <h2>Países da Copa <span class="hint">(clique em um país disponível para escolher)</span></h2>
+      <h2>Países da Copa <span class="hint">(entre com seu código e clique num país disponível)</span></h2>
       <div id="teams-grid" class="teams-grid"></div>
     </section>
 
+    <!-- ===== RANKING ===== -->
+    <section class="leaderboard-section">
+      <h2>🏅 Ranking geral</h2>
+      <div class="board-wrap">
+        <table id="leaderboard"></table>
+      </div>
+    </section>
+
+    <!-- ===== WINNER / LOSER DA SEMANA ===== -->
+    <section class="weekly-section">
+      <h2>📅 Craque & Mico da Semana</h2>
+      <div id="weekly-body" class="weekly-body"></div>
+    </section>
+
+    <!-- ===== ADMIN (oculto até logar com código admin) ===== -->
+    <section id="admin-panel" class="admin-panel" hidden>
+      <h2>🔧 Painel do Admin</h2>
+
+      <div class="admin-block">
+        <h3>Confronto do Dia</h3>
+        <label>Data <input id="adm-conf-date" type="date" /></label>
+        <label>Time A <select id="adm-conf-a"></select></label>
+        <label>Time B <select id="adm-conf-b"></select></label>
+        <button id="adm-conf-save">Definir confronto</button>
+      </div>
+
+      <div class="admin-block">
+        <h3>Resultado de jogo (placar)</h3>
+        <label>Data <input id="adm-res-date" type="date" /></label>
+        <label><select id="adm-res-a"></select></label>
+        <label class="score"><input id="adm-res-sa" type="number" min="0" value="0" /></label>
+        <span>x</span>
+        <label class="score"><input id="adm-res-sb" type="number" min="0" value="0" /></label>
+        <label><select id="adm-res-b"></select></label>
+        <button id="adm-res-save">Salvar placar</button>
+        <p class="hint">Resolve o confronto do dia automaticamente quando os times batem.</p>
+      </div>
+
+      <div class="admin-block">
+        <h3>Simular data (testes)</h3>
+        <label><input id="adm-today" type="date" /></label>
+        <button id="adm-today-save">Usar esta data como "hoje"</button>
+        <button id="adm-today-clear">Voltar ao tempo real</button>
+      </div>
+
+      <div class="admin-block danger">
+        <h3>Draft</h3>
+        <button id="undo-btn" class="reset-btn">Desfazer última escolha</button>
+        <button id="reset-btn" class="reset-btn">Resetar draft</button>
+      </div>
+    </section>
+
     <footer class="bolao-footer">
-      <button id="undo-btn" class="reset-btn">Desfazer última escolha</button>
-      <button id="reset-btn" class="reset-btn">Resetar draft</button>
+      <span class="hint">Bolão Copa 2026</span>
     </footer>
   </main>
 
   <!-- Firebase (compat build — works with plain script tags) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <!-- Your Firebase project config (fill this in) -->
+  <!-- Your Firebase config + player codes -->
   <script src="/assets/js/bolao-config.js"></script>
   <!-- App logic -->
   <script src="/assets/js/bolao.js"></script>

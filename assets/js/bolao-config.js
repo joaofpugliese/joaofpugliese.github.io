@@ -35,3 +35,36 @@ window.BOLAO_FIREBASE_CONFIG = {
   messagingSenderId: "533383056762",
   appId: "1:533383056762:web:1b85753a87005006addac3"
 };
+
+/* ===========================================================================
+ * Player login codes (Pokémon) — distribute each one PRIVATELY to its owner.
+ * ---------------------------------------------------------------------------
+ * Players type their code to act (draft pick AND "Confronto do Dia" pick), so
+ * picks are correctly attributed and nobody picks "for" someone else by mistake.
+ * Matching is case-insensitive. These are a soft gate, not strong security —
+ * a determined person could read them, but they stop everyday confusion.
+ *
+ * To change a code, just edit the key here. Keep them unique.
+ * =========================================================================== */
+window.BOLAO_PLAYER_CODES = {
+  // code (typed by the player)  ->  player name (must match the draft order list)
+  "pikachu":    "Alexandre",
+  "charizard":  "Makoto",
+  "bulbasaur":  "Talvino",
+  "licktung":   "Nick",
+  "eevee":      "Gabriel",
+  "snorlax":    "Ojeda",
+  "gengar":     "Jota",
+  "jigglypuff": "Ariel",
+  "machamp":    "Caio",
+  "lapras":     "Joel",
+  "gyarados":   "Otávio",
+  "dragonite":  "Fernando",
+  "lucario":    "Angelo",
+  "greninja":   "Arombe",
+  "mew":        "José"
+};
+
+// Admin code — unlocks the admin panel (set Confronto do Dia, enter results,
+// undo/reset). Keep this one to yourself.
+window.BOLAO_ADMIN_CODE = "arceus";
