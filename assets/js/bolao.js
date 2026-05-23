@@ -100,7 +100,7 @@
   var LOSER_PHRASES = [
     "{n} foi um desastre, vergonha da família ⚰️.",
     "{n} jogou tão mal que dói de assistir.",
-    "{n} é o mico da semana, devolve o troféu.",
+    "{n} é o lixo da semana, devolve o troféu.",
     "{n} apanhou feio, melhor nem comentar.",
     "{n} sumiu — alguém viu o {n}? Pffff.",
     "{n} tá de lanterna, pendura a chuteira já.",
@@ -236,9 +236,20 @@
     renderLogin();
     renderConfronto(lastState, standings);
     renderDraft(lastState);
+    renderTrades(lastState);
     renderLeaderboard(standings);
     renderWeekly(lastState, standings);
     renderAdmin();
+  }
+
+  function isPlayer() { return !!(currentUser && !currentUser.admin); }
+  function teamName(code) { return (teamByCode[code] || {}).name || code; }
+  function buildByPlayerSlot(picks) {
+    var m = {}; PLAYERS.forEach(function (p) { m[p] = {}; });
+    Object.keys(picks || {}).forEach(function (c) {
+      var pk = picks[c]; if (m[pk.player]) m[pk.player][pk.slot] = { code: c, name: teamName(c) };
+    });
+    return m;
   }
 
   /* ---- login bar ---- */
@@ -366,6 +377,19 @@
     renderBanner(turn);
     renderBoard(byPlayerSlot, turn);
     renderGrid(picks, turn);
+    updateUndoButton(picks);
+  }
+
+  function lastPick(picks) {
+    var p = picks || {}, code = null, ord = -1;
+    Object.keys(p).forEach(function (c) { if (p[c].order > ord) { ord = p[c].order; code = c; } });
+    return code ? { code: code, player: p[code].player } : null;
+  }
+
+  // The "Desfazer" button is shown only to the player who made the most recent pick.
+  function updateUndoButton(picks) {
+    var last = lastPick(picks);
+    els.undo.hidden = !(currentUser && !currentUser.admin && last && last.player === currentUser.name);
   }
 
   function renderBanner(turn) {
@@ -438,6 +462,174 @@
     });
   }
 
+  /* ---- TRADES ---- */
+  function renderTrades(state) {
+    var picks = state.picks || {};
+    var n = Object.keys(picks).length;
+    var complete = n >= TOTAL_PICKS;
+    var bps = buildByPlayerSlot(picks);
+    var leftover = TEAMS.filter(function (t) { return !picks[t.code]; });
+    var trades = state.trades || {};
+
+    if (!complete) {
+      els.tradeNotice.textContent = "Trocas e países sobrando liberam quando o draft terminar (faltam " + (TOTAL_PICKS - n) + " escolhas).";
+    } else if (!isPlayer()) {
+      els.tradeNotice.textContent = "Entre com seu código de jogador para propor trocas ou pegar países sobrando.";
+    } else {
+      els.tradeNotice.textContent = "";
+    }
+    els.proposeForm.hidden = !(complete && isPlayer());
+
+    updateTradePreview(bps);
+    renderTradeProposals(trades);
+    renderPoolGrid(leftover, complete);
+    renderTradeLog(trades);
+  }
+
+  function updateTradePreview(bps) {
+    if (els.proposeForm.hidden) { els.tradePreview.innerHTML = ""; return; }
+    var me = currentUser.name, slot = els.tradeSlot.value, target = els.tradeTarget.value;
+    if (!target || target === me) { els.tradePreview.innerHTML = "<span class='muted'>Escolha outro jogador.</span>"; return; }
+    var mine = (bps[me] || {})[slot], theirs = (bps[target] || {})[slot];
+    if (!mine || !theirs) { els.tradePreview.innerHTML = "<span class='muted'>Sem time nesse slot para trocar.</span>"; return; }
+    els.tradePreview.innerHTML = "Você oferece <b>" + mine.name + "</b> e recebe <b>" + theirs.name +
+      "</b> de <b>" + target + "</b> (Time " + slot + ").";
+  }
+
+  function renderTradeProposals(trades) {
+    els.tradeIncoming.innerHTML = "";
+    if (!isPlayer()) return;
+    var me = currentUser.name;
+    Object.keys(trades).forEach(function (id) {
+      var t = trades[id];
+      if (!t || t.type !== "swap" || t.status !== "pending") return;
+      if (t.to !== me && t.from !== me) return;
+      var div = document.createElement("div");
+      div.className = "proposal";
+      if (t.to === me) {
+        div.innerHTML = "<span><b>" + t.from + "</b> oferece <b>" + teamName(t.fromTeam) +
+          "</b> pelo seu <b>" + teamName(t.toTeam) + "</b> (Time " + t.slot + ")</span>";
+        var ok = document.createElement("button"); ok.className = "p-accept"; ok.textContent = "Aceitar";
+        ok.addEventListener("click", function () { acceptTrade(id, t); });
+        var no = document.createElement("button"); no.className = "p-decline"; no.textContent = "Recusar";
+        no.addEventListener("click", function () { declineTrade(id, t); });
+        div.appendChild(ok); div.appendChild(no);
+      } else {
+        div.innerHTML = "<span>Você propôs <b>" + teamName(t.fromTeam) + "</b> por <b>" + teamName(t.toTeam) +
+          "</b> de <b>" + t.to + "</b> — aguardando.</span>";
+        var cancel = document.createElement("button"); cancel.className = "p-decline"; cancel.textContent = "Cancelar";
+        cancel.addEventListener("click", function () { cancelTrade(id, t); });
+        div.appendChild(cancel);
+      }
+      els.tradeIncoming.appendChild(div);
+    });
+  }
+
+  function renderPoolGrid(leftover, complete) {
+    els.poolGrid.innerHTML = "";
+    if (!complete) { els.poolGrid.innerHTML = "<span class='muted'>—</span>"; return; }
+    leftover.forEach(function (t) {
+      var card = document.createElement("div");
+      card.className = "team-card";
+      card.innerHTML = "<img class='flag-lg' alt='' src='" + flagUrl(t.code, true) + "'>" +
+        "<span class='team-name'>" + t.name + "</span>";
+      if (isPlayer()) {
+        var row = document.createElement("div");
+        row.className = "pool-actions";
+        SLOTS.forEach(function (s) {
+          var b = document.createElement("button");
+          b.textContent = "→ " + s;
+          b.title = "Trocar pelo seu Time " + s;
+          b.addEventListener("click", function () { poolSwap(t.code, s); });
+          row.appendChild(b);
+        });
+        card.appendChild(row);
+      }
+      els.poolGrid.appendChild(card);
+    });
+  }
+
+  function renderTradeLog(trades) {
+    var arr = Object.keys(trades).map(function (id) { var t = trades[id]; t._id = id; return t; });
+    arr.sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+    if (!arr.length) { els.tradeLog.innerHTML = "<p class='muted'>Nenhuma troca ainda.</p>"; return; }
+    els.tradeLog.innerHTML = arr.map(function (t) {
+      if (t.type === "pool") {
+        return "<div class='log-entry'>🔄 <b>" + t.player + "</b> trocou <b>" + teamName(t.outTeam) +
+          "</b> por <b>" + teamName(t.inTeam) + "</b> (país sobrando) — Time " + t.slot + "</div>";
+      }
+      var prop = "<b>" + t.from + "</b> (" + teamName(t.fromTeam) + ") propôs troca com <b>" + t.to + "</b> (" + teamName(t.toTeam) + ")";
+      var result = "";
+      if (t.status === "accepted") result = "<div class='log-result ok'>✅ <b>" + t.to + "</b> (" + teamName(t.toTeam) + ") aceitou troca com <b>" + t.from + "</b> (" + teamName(t.fromTeam) + ")</div>";
+      else if (t.status === "declined") result = "<div class='log-result no'>❌ <b>" + t.to + "</b> (" + teamName(t.toTeam) + ") recusou troca com <b>" + t.from + "</b> (" + teamName(t.fromTeam) + ")</div>";
+      else if (t.status === "cancelled") result = "<div class='log-result no'>🚫 " + t.from + " cancelou a proposta</div>";
+      else if (t.status === "failed") result = "<div class='log-result no'>⚠️ troca expirou (times mudaram)</div>";
+      else result = "<div class='log-result'>⏳ aguardando " + t.to + "</div>";
+      return "<div class='log-entry'>" + prop + result + "</div>";
+    }).join("");
+  }
+
+  function proposeTrade() {
+    if (!isPlayer()) { showMessage("Entre com seu código de jogador primeiro.", "error"); return; }
+    var me = currentUser.name, slot = els.tradeSlot.value, target = els.tradeTarget.value;
+    if (!target || target === me) { showMessage("Escolha outro jogador.", "error"); return; }
+    var bps = buildByPlayerSlot(lastState.picks || {});
+    var mine = (bps[me] || {})[slot], theirs = (bps[target] || {})[slot];
+    if (!mine || !theirs) { showMessage("Sem time nesse slot para trocar.", "error"); return; }
+    db.ref("bolao/trades").push({
+      type: "swap", from: me, to: target, slot: slot,
+      fromTeam: mine.code, toTeam: theirs.code, status: "pending", ts: Date.now()
+    }, function (err) { showMessage(err ? "Erro: " + err.message : "Proposta enviada para " + target + ". ✅", err ? "error" : "success"); });
+  }
+
+  function acceptTrade(id, t) {
+    if (!isPlayer() || currentUser.name !== t.to) { showMessage("Só " + t.to + " pode aceitar.", "error"); return; }
+    db.ref("bolao/picks").transaction(function (picks) {
+      if (!picks) return;
+      var f = picks[t.fromTeam], g = picks[t.toTeam];
+      if (!f || !g) return;
+      if (f.player !== t.from || g.player !== t.to) return; // changed since proposal
+      var tmp = f.player; f.player = g.player; g.player = tmp; // swap owners (same slot)
+      return picks;
+    }, function (err, committed) {
+      if (err) { showMessage("Erro: " + err.message, "error"); return; }
+      if (!committed) { db.ref("bolao/trades/" + id).update({ status: "failed", resolvedTs: Date.now() }); showMessage("Troca não pôde ser feita (os times mudaram).", "error"); return; }
+      db.ref("bolao/trades/" + id).update({ status: "accepted", resolvedTs: Date.now() });
+      showMessage("Troca aceita! ✅", "success");
+    });
+  }
+
+  function declineTrade(id, t) {
+    if (!isPlayer() || currentUser.name !== t.to) return;
+    db.ref("bolao/trades/" + id).update({ status: "declined", resolvedTs: Date.now() });
+  }
+  function cancelTrade(id, t) {
+    if (!isPlayer() || currentUser.name !== t.from) return;
+    db.ref("bolao/trades/" + id).update({ status: "cancelled", resolvedTs: Date.now() });
+  }
+
+  function poolSwap(inCode, slot) {
+    if (!isPlayer()) { showMessage("Entre com seu código de jogador primeiro.", "error"); return; }
+    var me = currentUser.name, swapped = { out: null };
+    db.ref("bolao/picks").transaction(function (picks) {
+      if (!picks) return;
+      if (picks[inCode]) return; // already taken
+      var outCode = null;
+      Object.keys(picks).forEach(function (c) { if (picks[c].player === me && picks[c].slot === slot) outCode = c; });
+      if (!outCode) return;
+      var ord = picks[outCode].order;
+      delete picks[outCode];
+      picks[inCode] = { player: me, slot: slot, order: ord };
+      swapped.out = outCode;
+      return picks;
+    }, function (err, committed) {
+      if (err) { showMessage("Erro: " + err.message, "error"); return; }
+      if (!committed) { showMessage("Não deu (país já foi pego ou você não tem time nesse slot).", "error"); return; }
+      db.ref("bolao/trades").push({ type: "pool", player: me, slot: slot, outTeam: swapped.out, inTeam: inCode, status: "done", ts: Date.now() });
+      showMessage("Você pegou " + teamName(inCode) + " para o seu Time " + slot + "! ✅", "success");
+    });
+  }
+
   /* ---- leaderboard ---- */
   function renderLeaderboard(standings) {
     var rows = PLAYERS.map(function (p) { return { name: p, pts: standings.points[p] || 0 }; });
@@ -469,7 +661,7 @@
       html += "<div class='award craque'>🔥 Craque: " + pickPhrase(WINNER_PHRASES, wk + "|" + top.name + "|w", top.name) +
         " <span class='wk-pts'>(" + fmtPts(top.pts) + " pts)</span></div>";
       if (scored.length > 1 && bottom.name !== top.name) {
-        html += "<div class='award mico'>💩 Mico: " + pickPhrase(LOSER_PHRASES, wk + "|" + bottom.name + "|l", bottom.name) +
+        html += "<div class='award lixo'>💩 Lixo: " + pickPhrase(LOSER_PHRASES, wk + "|" + bottom.name + "|l", bottom.name) +
           " <span class='wk-pts'>(" + fmtPts(bottom.pts) + " pts)</span></div>";
       }
       html += "</div>";
@@ -542,17 +734,22 @@
   function adminClearToday() {
     db.ref("bolao/meta/today").remove(function () { showMessage("Voltou ao tempo real.", "success"); });
   }
+  // Only the player who made the last pick can undo it (their own pick).
   function undoLast() {
-    if (!confirm("Desfazer a última escolha do draft?")) return;
+    if (!currentUser || currentUser.admin) { showMessage("Só o último jogador que escolheu pode desfazer.", "error"); return; }
+    if (!confirm("Desfazer a SUA última escolha do draft?")) return;
+    var me = currentUser.name;
     db.ref("bolao/picks").transaction(function (picks) {
       if (!picks) return;
       var lastCode = null, lastOrder = -1;
       Object.keys(picks).forEach(function (c) { if (picks[c].order > lastOrder) { lastOrder = picks[c].order; lastCode = c; } });
       if (lastCode === null) return;
+      if (picks[lastCode].player !== me) return; // last pick isn't yours -> abort
       delete picks[lastCode];
       return picks;
     }, function (err, committed) {
-      showMessage(err ? "Erro: " + err.message : (committed ? "Última escolha desfeita." : "Nada para desfazer."), err ? "error" : "success");
+      if (err) { showMessage("Erro: " + err.message, "error"); return; }
+      showMessage(committed ? "Sua última escolha foi desfeita." : "Você não fez a última escolha (nada a desfazer).", committed ? "success" : "error");
     });
   }
   function resetDraft() {
@@ -576,6 +773,15 @@
       grid: document.getElementById("teams-grid"),
       leaderboard: document.getElementById("leaderboard"),
       weeklyBody: document.getElementById("weekly-body"),
+      tradeNotice: document.getElementById("trade-notice"),
+      proposeForm: document.getElementById("propose-form"),
+      tradeSlot: document.getElementById("trade-slot"),
+      tradeTarget: document.getElementById("trade-target"),
+      tradePreview: document.getElementById("trade-preview"),
+      tradePropose: document.getElementById("trade-propose"),
+      tradeIncoming: document.getElementById("trade-incoming"),
+      poolGrid: document.getElementById("pool-grid"),
+      tradeLog: document.getElementById("trade-log"),
       adminPanel: document.getElementById("admin-panel"),
       admConfDate: document.getElementById("adm-conf-date"),
       admConfA: document.getElementById("adm-conf-a"),
@@ -601,6 +807,9 @@
     grabEls();
     [els.admConfA, els.admConfB, els.admResA, els.admResB].forEach(fillTeamSelect);
 
+    // trade target dropdown (all players; self is rejected at propose time)
+    PLAYERS.forEach(function (p) { var o = document.createElement("option"); o.value = p; o.textContent = p; els.tradeTarget.appendChild(o); });
+
     // wire events
     els.loginBtn.addEventListener("click", doLogin);
     els.codeInput.addEventListener("keydown", function (e) { if (e.key === "Enter") doLogin(); });
@@ -611,6 +820,10 @@
     els.admTodayClear.addEventListener("click", adminClearToday);
     els.undo.addEventListener("click", undoLast);
     els.reset.addEventListener("click", resetDraft);
+    els.tradePropose.addEventListener("click", proposeTrade);
+    var refreshPreview = function () { updateTradePreview(buildByPlayerSlot(lastState.picks || {})); };
+    els.tradeSlot.addEventListener("change", refreshPreview);
+    els.tradeTarget.addEventListener("change", refreshPreview);
 
     autoLogin();
 

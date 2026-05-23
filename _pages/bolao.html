@@ -18,10 +18,17 @@ permalink: /bolao/
       <p class="subtitle">Draft sequencial dos países &middot; Confronto do Dia &middot; Ranking</p>
     </header>
 
+    <nav class="toc">
+      <a href="#confronto-section">⚔️ Confronto Direto</a>
+      <a href="#escolha">📋 Escolha</a>
+      <a href="#ranking">🏅 Ranking</a>
+      <a href="#weekly">📅 Craque &amp; Lixo</a>
+    </nav>
+
     <!-- ===== LOGIN (código Pokémon) ===== -->
     <section id="login-bar" class="login-bar">
       <label for="code-input"><b>Seu código:</b></label>
-      <input id="code-input" type="text" placeholder="ex.: Pikachu" autocomplete="off" />
+      <input id="code-input" type="text" placeholder="seu código Pokémon" autocomplete="off" />
       <button id="login-btn">Entrar</button>
       <span id="who-am-i" class="who-am-i"></span>
       <button id="logout-btn" class="logout-btn" hidden>Sair</button>
@@ -35,7 +42,7 @@ permalink: /bolao/
     </section>
 
     <!-- ===== DRAFT ===== -->
-    <section class="legend">
+    <section id="escolha" class="legend">
       <strong>Pontuação do draft (por vitória do país, em qualquer jogo):</strong>
       <ul>
         <li><span class="badge slot-C">C</span> Vitória do Time C → <b>−1 ponto</b></li>
@@ -45,6 +52,7 @@ permalink: /bolao/
     </section>
 
     <div id="turn-banner" class="turn-banner">Conectando…</div>
+    <div class="undo-wrap"><button id="undo-btn" class="undo-mine" hidden>↩︎ Desfazer minha última escolha</button></div>
 
     <section class="board-section">
       <h2>Quadro de escolhas</h2>
@@ -58,8 +66,40 @@ permalink: /bolao/
       <div id="teams-grid" class="teams-grid"></div>
     </section>
 
+    <!-- ===== TROCAS ===== -->
+    <section id="trade-section" class="trade-section">
+      <h2>🔁 Trocas de times</h2>
+      <div id="trade-notice" class="muted"></div>
+
+      <div id="propose-form" class="propose-form" hidden>
+        <h3>Propor troca</h3>
+        <div class="propose-row">
+          <label>Dentro do
+            <select id="trade-slot">
+              <option value="C">Time C</option>
+              <option value="B">Time B</option>
+              <option value="A">Time A</option>
+            </select>
+          </label>
+          <label>Com o jogador
+            <select id="trade-target"></select>
+          </label>
+        </div>
+        <div id="trade-preview" class="trade-preview"></div>
+        <button id="trade-propose">Propor troca</button>
+      </div>
+
+      <div id="trade-incoming" class="trade-incoming"></div>
+
+      <h3>Países sobrando <span class="hint">(troque à vontade por um dos seus)</span></h3>
+      <div id="pool-grid" class="teams-grid pool-grid"></div>
+
+      <h3>Histórico de trocas</h3>
+      <div id="trade-log" class="trade-log"></div>
+    </section>
+
     <!-- ===== RANKING ===== -->
-    <section class="leaderboard-section">
+    <section id="ranking" class="leaderboard-section">
       <h2>🏅 Ranking geral</h2>
       <div class="board-wrap">
         <table id="leaderboard"></table>
@@ -67,8 +107,8 @@ permalink: /bolao/
     </section>
 
     <!-- ===== WINNER / LOSER DA SEMANA ===== -->
-    <section class="weekly-section">
-      <h2>📅 Craque & Mico da Semana</h2>
+    <section id="weekly" class="weekly-section">
+      <h2>📅 Craque & Lixo da Semana</h2>
       <div id="weekly-body" class="weekly-body"></div>
     </section>
 
@@ -105,7 +145,6 @@ permalink: /bolao/
 
       <div class="admin-block danger">
         <h3>Draft</h3>
-        <button id="undo-btn" class="reset-btn">Desfazer última escolha</button>
         <button id="reset-btn" class="reset-btn">Resetar draft</button>
       </div>
     </section>

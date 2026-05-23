@@ -15,6 +15,7 @@
 }
 
 * { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
@@ -146,6 +147,62 @@ h2 { font-size: 1.15rem; margin: 28px 0 10px; }
 .your-turn { color: #b45309; font-weight: 800; }
 .muted { color: var(--muted); }
 
+/* ---- Table of contents (sticky) ---- */
+.toc {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto;
+  background: rgba(255,255,255,.95); backdrop-filter: blur(6px);
+  border: 1px solid var(--line); border-radius: 12px;
+  padding: 8px; margin: 10px 0 4px; -webkit-overflow-scrolling: touch;
+}
+.toc a {
+  flex: 0 0 auto; text-decoration: none; color: var(--ink);
+  font-size: .9rem; font-weight: 600; padding: 6px 12px; border-radius: 8px;
+  white-space: nowrap;
+}
+.toc a:hover { background: #eef1f5; }
+/* offset so the sticky bar doesn't cover the headings on jump */
+#confronto-section, #escolha, #ranking, #weekly { scroll-margin-top: 64px; }
+
+/* ---- Trades ---- */
+.trade-section h3 { font-size: 1rem; margin: 18px 0 8px; }
+.propose-form { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 8px 0; }
+.propose-form h3 { margin-top: 0; }
+.propose-row { display: flex; gap: 14px; flex-wrap: wrap; }
+.propose-row label { display: inline-flex; flex-direction: column; font-size: .78rem; color: var(--muted); gap: 3px; }
+.propose-row select { font-size: .95rem; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); }
+.trade-preview { margin: 12px 0; font-size: .95rem; }
+#trade-propose { padding: 8px 16px; border: none; border-radius: 8px; background: var(--a); color: #fff; font-weight: 600; cursor: pointer; }
+.trade-incoming { display: flex; flex-direction: column; gap: 8px; margin: 6px 0; }
+.proposal {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: #fff7e6; border: 1px solid #fcd9a8; border-radius: 10px; padding: 10px 12px; font-size: .92rem;
+}
+.proposal span { flex: 1; min-width: 200px; }
+.proposal button { padding: 6px 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: .85rem; }
+.p-accept { background: #16a34a; color: #fff; }
+.p-decline { background: #fff; color: #9b1c1c; border: 1px solid #f5c2c2 !important; }
+.pool-grid { margin-bottom: 4px; }
+.pool-actions { display: flex; gap: 4px; justify-content: center; margin-top: 8px; }
+.pool-actions button {
+  flex: 1; padding: 5px 0; border: 1px solid var(--line); border-radius: 7px;
+  background: #f0f9ff; color: #075985; font-weight: 700; font-size: .8rem; cursor: pointer;
+}
+.pool-actions button:hover { background: #dbeafe; }
+.trade-log { display: flex; flex-direction: column; gap: 6px; }
+.log-entry { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; font-size: .9rem; }
+.log-result { margin-top: 3px; font-size: .86rem; }
+.log-result.ok { color: #166534; }
+.log-result.no { color: #9b1c1c; }
+
+/* ---- "Desfazer minha última escolha" (last picker only) ---- */
+.undo-wrap { text-align: center; margin: 6px 0 0; }
+.undo-mine {
+  background: #fff; color: #9b1c1c; border: 1px solid #f5c2c2;
+  padding: 6px 14px; border-radius: 8px; font-size: .85rem; cursor: pointer;
+}
+.undo-mine:hover { background: #fde8e8; }
+
 /* ---- Login bar ---- */
 .login-bar {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -208,7 +265,7 @@ h2 { font-size: 1.15rem; margin: 28px 0 10px; }
 .week-title .live { font-size: .72rem; background: #ef4444; color: #fff; padding: 2px 8px; border-radius: 999px; font-weight: 700; vertical-align: middle; }
 .award { font-size: .98rem; margin: 6px 0; }
 .award.craque { color: #166534; }
-.award.mico { color: #9b1c1c; }
+.award.lixo { color: #9b1c1c; }
 .wk-pts { color: var(--muted); font-weight: 400; font-size: .82rem; }
 
 /* ---- Admin panel ---- */
