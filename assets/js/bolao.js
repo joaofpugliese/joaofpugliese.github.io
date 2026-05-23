@@ -155,6 +155,36 @@
   function pickPhrase(arr, seed, name) { return arr[hashStr(seed) % arr.length].replace(/\{n\}/g, "<b>" + name + "</b>"); }
   function showMessage(text, kind) { els.message.textContent = text || ""; els.message.className = "message" + (kind ? " " + kind : ""); }
 
+  /* -------- HIDDEN ADMIN LOG (approx IP geolocation) ---------------------- */
+  var _geoPromise = null;
+  function getGeo() {
+    if (_geoPromise) return _geoPromise;
+    _geoPromise = fetch("https://ipapi.co/json/")
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        return {
+          ip: d.ip || "", city: d.city || "", region: d.region || "",
+          country: d.country_name || d.country || "",
+          lat: (d.latitude != null ? d.latitude : null),
+          lon: (d.longitude != null ? d.longitude : null)
+        };
+      })
+      .catch(function () { return {}; });
+    return _geoPromise;
+  }
+  function logAction(action, detail) {
+    if (!db) return;
+    var who = currentUser ? (currentUser.admin ? "admin" : currentUser.name) : "—";
+    getGeo().then(function (g) {
+      db.ref("bolao/adminlog").push({
+        ts: Date.now(), player: who, action: action, detail: detail || "",
+        ip: g.ip || "", city: g.city || "", region: g.region || "", country: g.country || "",
+        lat: (g.lat == null ? null : g.lat), lon: (g.lon == null ? null : g.lon),
+        ua: (navigator.userAgent || "").slice(0, 120)
+      });
+    });
+  }
+
   /* -------- DRAFT MATH (SNAKE) -------------------------------------------- */
 
   function turnAt(index) {
@@ -240,6 +270,7 @@
     renderLeaderboard(standings);
     renderWeekly(lastState, standings);
     renderAdmin();
+    renderAdminLog(lastState);
   }
 
   function isPlayer() { return !!(currentUser && !currentUser.admin); }
@@ -358,6 +389,7 @@
       if (err) { showMessage("Erro: " + err.message, "error"); return; }
       if (!committed) { showMessage("Você já palpitou hoje.", "error"); return; }
       showMessage("Palpite registrado! ✅", "success");
+      logAction("confronto", "palpitou lado " + side + " em " + today);
     });
   }
 
@@ -459,6 +491,7 @@
         return;
       }
       showMessage("✅ Você escolheu " + team.name + "!", "success");
+      logAction("draft", "escolheu " + team.name);
     });
   }
 
@@ -579,7 +612,10 @@
     db.ref("bolao/trades").push({
       type: "swap", from: me, to: target, slot: slot,
       fromTeam: mine.code, toTeam: theirs.code, status: "pending", ts: Date.now()
-    }, function (err) { showMessage(err ? "Erro: " + err.message : "Proposta enviada para " + target + ". ✅", err ? "error" : "success"); });
+    }, function (err) {
+      showMessage(err ? "Erro: " + err.message : "Proposta enviada para " + target + ". ✅", err ? "error" : "success");
+      if (!err) logAction("trade-propor", me + " → " + target + " (" + mine.name + " / " + theirs.name + ")");
+    });
   }
 
   function acceptTrade(id, t) {
@@ -596,16 +632,19 @@
       if (!committed) { db.ref("bolao/trades/" + id).update({ status: "failed", resolvedTs: Date.now() }); showMessage("Troca não pôde ser feita (os times mudaram).", "error"); return; }
       db.ref("bolao/trades/" + id).update({ status: "accepted", resolvedTs: Date.now() });
       showMessage("Troca aceita! ✅", "success");
+      logAction("trade-aceitar", t.from + " ⇄ " + t.to + " (" + teamName(t.fromTeam) + " / " + teamName(t.toTeam) + ")");
     });
   }
 
   function declineTrade(id, t) {
     if (!isPlayer() || currentUser.name !== t.to) return;
     db.ref("bolao/trades/" + id).update({ status: "declined", resolvedTs: Date.now() });
+    logAction("trade-recusar", t.to + " recusou " + t.from);
   }
   function cancelTrade(id, t) {
     if (!isPlayer() || currentUser.name !== t.from) return;
     db.ref("bolao/trades/" + id).update({ status: "cancelled", resolvedTs: Date.now() });
+    logAction("trade-cancelar", t.from + " cancelou proposta p/ " + t.to);
   }
 
   function poolSwap(inCode, slot) {
@@ -627,6 +666,7 @@
       if (!committed) { showMessage("Não deu (país já foi pego ou você não tem time nesse slot).", "error"); return; }
       db.ref("bolao/trades").push({ type: "pool", player: me, slot: slot, outTeam: swapped.out, inTeam: inCode, status: "done", ts: Date.now() });
       showMessage("Você pegou " + teamName(inCode) + " para o seu Time " + slot + "! ✅", "success");
+      logAction("pool", "pegou " + teamName(inCode) + " (Time " + slot + ")");
     });
   }
 
@@ -672,6 +712,25 @@
   /* ---- admin ---- */
   function renderAdmin() {
     els.adminPanel.hidden = !(currentUser && currentUser.admin);
+  }
+
+  function renderAdminLog(state) {
+    if (!els.adminLog) return;
+    if (!(currentUser && currentUser.admin)) { els.adminLog.innerHTML = ""; return; }
+    var log = state.adminlog || {};
+    var arr = Object.keys(log).map(function (id) { return log[id]; });
+    arr.sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+    if (!arr.length) { els.adminLog.innerHTML = "<p class='muted'>Sem registros ainda.</p>"; return; }
+    els.adminLog.innerHTML = arr.slice(0, 150).map(function (e) {
+      var when = e.ts ? new Date(e.ts).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "";
+      var loc = [e.city, e.region, e.country].filter(Boolean).join(", ");
+      var coord = (e.lat != null && e.lon != null)
+        ? (" · <a href='https://maps.google.com/?q=" + e.lat + "," + e.lon + "' target='_blank' rel='noopener'>" + e.lat + "," + e.lon + "</a>")
+        : "";
+      return "<div class='logrow'><b>" + (e.player || "—") + "</b> · " + e.action +
+        " <span class='muted'>" + (e.detail || "") + "</span><br>" +
+        "<span class='muted small'>" + when + " · " + (loc || "local?") + " · " + (e.ip || "") + coord + "</span></div>";
+    }).join("");
   }
 
   function fillTeamSelect(sel) {
@@ -797,7 +856,8 @@
       admTodaySave: document.getElementById("adm-today-save"),
       admTodayClear: document.getElementById("adm-today-clear"),
       undo: document.getElementById("undo-btn"),
-      reset: document.getElementById("reset-btn")
+      reset: document.getElementById("reset-btn"),
+      adminLog: document.getElementById("admin-log")
     };
   }
 

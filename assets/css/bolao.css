@@ -284,6 +284,11 @@ h2 { font-size: 1.15rem; margin: 28px 0 10px; }
   padding: 8px 14px; border-radius: 8px; border: none; cursor: pointer;
   background: #b45309; color: #fff; font-weight: 600; font-size: .9rem; margin: 0 6px 6px 0;
 }
+.admin-log { max-height: 320px; overflow-y: auto; font-size: .85rem; }
+.admin-log .logrow { padding: 6px 0; border-bottom: 1px dashed #f0d9b5; }
+.admin-log .small { font-size: .78rem; }
+.admin-log a { color: #2563eb; }
+
 .admin-block.danger button { background: #fff; color: var(--muted); border: 1px solid var(--line); }
 .admin-block.danger button:hover { background: #fde8e8; color: #9b1c1c; border-color: #f5c2c2; }
 
