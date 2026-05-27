@@ -569,13 +569,11 @@
       if (isPlayer()) {
         var row = document.createElement("div");
         row.className = "pool-actions";
-        SLOTS.forEach(function (s) {
-          var b = document.createElement("button");
-          b.textContent = "→ " + s;
-          b.title = "Trocar pelo seu Time " + s;
-          b.addEventListener("click", function () { poolSwap(t.code, s); });
-          row.appendChild(b);
-        });
+        var b = document.createElement("button");
+        b.textContent = "Pegar p/ Time C";
+        b.title = "Trocar pelo seu Time C";
+        b.addEventListener("click", function () { poolSwap(t.code, "C"); });
+        row.appendChild(b);
         card.appendChild(row);
       }
       els.poolGrid.appendChild(card);
