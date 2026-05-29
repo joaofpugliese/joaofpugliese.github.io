@@ -135,7 +135,38 @@
       grp.querySelector(".dummy-yellow").setAttribute("style", "clip-path: inset(0 0 0 100%);");
     }
 
-    /** Integer 0–100: dark teal from left, BLACK from right (for fillInitial/fillSequential2 committed prevGreen partial). */
+    /** Tri-color partial: dark teal (committed) | light green (new sorteios) | restColor (yellow or black).
+        Uses BOTH clip layers + base color to render three colors in one dummy.
+        - 0 to pDarkTeal%: dark teal (#175c5a) via .dummy-green clip
+        - pDarkTeal to (pDarkTeal+greenPctWidth)%: light green (#2c807d) via .dummy-yellow clip
+        - rest: restColor via .dummy-base
+        Used by fillSequential2 so the partial-committed dummy participates in slider allocation. */
+    function setDummyAllocPartial(grp, pDarkTeal, greenPctWidth, restColor) {
+      restColor = restColor || "#000000";
+      clearDummyCommitted(grp);
+      if (!isLayered(grp)) {
+        // Fallback: pick dominant color
+        var rightHalf = (100 - pDarkTeal) / 2;
+        if (pDarkTeal >= 50) grp.setAttribute("fill", "#175c5a");
+        else if (greenPctWidth >= rightHalf) grp.setAttribute("fill", "#2c807d");
+        else grp.setAttribute("fill", restColor);
+        return;
+      }
+      grp.querySelectorAll(".dummy-base path").forEach(function (p) { p.setAttribute("fill", restColor); });
+      var gr = grp.querySelector(".dummy-green");
+      var yl = grp.querySelector(".dummy-yellow");
+      gr.querySelectorAll("path").forEach(function (p) { p.setAttribute("fill", "#175c5a"); });
+      yl.querySelectorAll("path").forEach(function (p) { p.setAttribute("fill", "#2c807d"); });
+      gr.setAttribute("style", "clip-path: inset(0 " + (100 - pDarkTeal) + "% 0 0);");
+      if (greenPctWidth > 0) {
+        var pEnd = Math.min(100, pDarkTeal + greenPctWidth);
+        yl.setAttribute("style", "clip-path: inset(0 " + (100 - pEnd) + "% 0 " + pDarkTeal + "%);");
+      } else {
+        yl.setAttribute("style", "clip-path: inset(0 0 0 100%);");
+      }
+    }
+
+    /** Integer 0–100: dark teal from left, BLACK from right (for fillInitial committed prevGreen partial). */
     function setDummyPartialDarkTeal(grp, pDarkTeal) {
       clearDummyCommitted(grp);
       if (!isLayered(grp)) {
@@ -306,8 +337,12 @@
           setDummyCommitted(groups[pj], true);
         }
         if (hasPGBP2) {
-          // Preserve the partial committed dummy as "pgbp% dark teal + rest BLACK" (don't fully green it out)
-          setDummyPartialDarkTeal(groups[off], pgbp2);
+          // Tri-color: pgbp% dark teal (committed) | partialGreenPctWidth% light green (new) | rest = partialRestColor (yellow or black)
+          var partialGreenPct = (typeof data.partialGreenPctWidth === "number" && data.partialGreenPctWidth > 0)
+            ? Math.min(100 - pgbp2, data.partialGreenPctWidth)
+            : 0;
+          var partialRest = data.partialRestColor || "#E6B325"; // default yellow
+          setDummyAllocPartial(groups[off], pgbp2, partialGreenPct, partialRest);
           setDummyCommitted(groups[off], true);
         }
       }
