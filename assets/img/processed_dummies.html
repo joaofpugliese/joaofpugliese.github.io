@@ -135,15 +135,15 @@
       grp.querySelector(".dummy-yellow").setAttribute("style", "clip-path: inset(0 0 0 100%);");
     }
 
-    /** Integer 0–100: dark teal from left, empty from right (for fillInitial committed prevGreen partial). */
+    /** Integer 0–100: dark teal from left, BLACK from right (for fillInitial/fillSequential2 committed prevGreen partial). */
     function setDummyPartialDarkTeal(grp, pDarkTeal) {
       clearDummyCommitted(grp);
       if (!isLayered(grp)) {
-        grp.setAttribute("fill", pDarkTeal >= 50 ? "#175c5a" : "#d9d9d9");
+        grp.setAttribute("fill", pDarkTeal >= 50 ? "#175c5a" : "#000000");
         return;
       }
       var r = 100 - pDarkTeal;
-      grp.querySelectorAll(".dummy-base path").forEach(function (p) { p.setAttribute("fill", "#d9d9d9"); });
+      grp.querySelectorAll(".dummy-base path").forEach(function (p) { p.setAttribute("fill", "#000000"); });
       var gr = grp.querySelector(".dummy-green");
       gr.querySelectorAll("path").forEach(function (p) { p.setAttribute("fill", "#175c5a"); });
       gr.setAttribute("style", "clip-path: inset(0 " + r + "% 0 0);");
@@ -258,8 +258,11 @@
           } else if (hasPart && i > gC && i <= gC + yC) {
             setDummyYellow(grp, "#E6B325");
           } else if (hasEndPart && i === endIdx) {
-            if (isLayered(grp)) setDummyPartialEnd(grp, 0, endPct);
-            else setDummySolidColor(grp, "#E6B325");
+            var endGreenPct = (typeof data.endPartialGreenPct === "number" && data.endPartialGreenPct > 0)
+              ? Math.min(endPct, data.endPartialGreenPct)
+              : 0;
+            if (isLayered(grp)) setDummyPartialEnd(grp, endGreenPct, endPct);
+            else setDummySolidColor(grp, endGreenPct > 0 ? "#2c807d" : "#E6B325");
           } else {
             setDummyEmpty(grp);
           }
@@ -303,7 +306,8 @@
           setDummyCommitted(groups[pj], true);
         }
         if (hasPGBP2) {
-          setDummyGreen(groups[off], "#175c5a");
+          // Preserve the partial committed dummy as "pgbp% dark teal + rest BLACK" (don't fully green it out)
+          setDummyPartialDarkTeal(groups[off], pgbp2);
           setDummyCommitted(groups[off], true);
         }
       }
