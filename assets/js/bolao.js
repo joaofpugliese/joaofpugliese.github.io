@@ -82,7 +82,7 @@
   ];
 
   var SLOTS = ["C", "B", "A"];
-  var SLOT_PTS = { C: -1, B: 2, A: 3 };
+  var SLOT_PTS = { C: 4, B: 2, A: 3 };
   var TOTAL_PICKS = PLAYERS.length * SLOTS.length;
   var CONFRONTO_BASE = 5;
   var TOURNEY_START = "2026-06-11"; // week buckets are 7-day blocks from here
@@ -122,6 +122,7 @@
   var db = null;
   var lastState = {};                 // last snapshot of /bolao
   var currentUser = null;             // { name } or { admin: true }
+  var selectedDate = null;            // currently-viewed confronto date (ribbon)
 
   var els = {};
 
@@ -230,14 +231,13 @@
       }
     });
 
-    // 2) Confronto points — 5 pts split among winning side; draws roll over.
+    // 2) Confronto points — pot is always 5; on draw, +3 split for weakSide pickers
+    //    and +2 split for the other side. (No rollover.)
     var potByDate = {};
-    var carry = 0;
     Object.keys(confrontos).sort().forEach(function (date) {
       var c = confrontos[date];
       if (!c || !c.teamA || !c.teamB) return;
-      var incoming = CONFRONTO_BASE + carry;
-      potByDate[date] = incoming;
+      potByDate[date] = CONFRONTO_BASE;
       var pk = c.picks || {};
       var wk = weekIndex(date);
       Object.keys(pk).forEach(function (p) { markActive(p, wk); });
@@ -246,13 +246,31 @@
       if (!r || r.scoreA == null || r.scoreB == null) return; // not played yet
 
       var winnerCode = r.scoreA > r.scoreB ? r.teamA : (r.scoreB > r.scoreA ? r.teamB : null);
-      if (winnerCode == null) { carry = incoming; return; }            // draw -> rollover
+      if (winnerCode == null) {
+        // DRAW — split 3 pts among weakSide pickers, 2 pts among the other side.
+        var weak = (c.weakSide === "A" || c.weakSide === "B") ? c.weakSide : null;
+        var weakPts, otherPts;
+        if (weak) { weakPts = 3; otherPts = 2; }
+        else { weak = "A"; weakPts = 2.5; otherPts = 2.5; } // fallback if not tagged
+        var other = (weak === "A") ? "B" : "A";
+        var weakPickers = Object.keys(pk).filter(function (p) { return pk[p] === weak; });
+        var otherPickers = Object.keys(pk).filter(function (p) { return pk[p] === other; });
+        if (weakPickers.length > 0) {
+          var ws = weakPts / weakPickers.length;
+          weakPickers.forEach(function (p) { addPts(p, ws, date); });
+        }
+        if (otherPickers.length > 0) {
+          var os = otherPts / otherPickers.length;
+          otherPickers.forEach(function (p) { addPts(p, os, date); });
+        }
+        return;
+      }
+      // WIN — 5 / N_winners to each winning-side picker.
       var side = (winnerCode === c.teamA) ? "A" : "B";
       var winners = Object.keys(pk).filter(function (p) { return pk[p] === side; });
-      if (winners.length === 0) { carry = incoming; return; }          // nobody on winning side -> rollover
-      var share = incoming / winners.length;
+      if (winners.length === 0) return;
+      var share = CONFRONTO_BASE / winners.length;
       winners.forEach(function (p) { addPts(p, share, date); });
-      carry = 0;
     });
 
     return { points: points, weekPts: weekPts, weekActive: weekActive, potByDate: potByDate, draftByTeam: draftByTeam };
@@ -264,6 +282,8 @@
     lastState = state || {};
     var standings = computeStandings(lastState);
     renderLogin();
+    ensureSelectedDate(lastState);
+    renderRibbon(lastState);
     renderConfronto(lastState, standings);
     renderDraft(lastState);
     renderTrades(lastState);
@@ -295,9 +315,48 @@
       : "Você é: <b>" + currentUser.name + "</b>";
   }
 
+  /* ---- ribbon (one chip per scheduled day) ---- */
+  function ensureSelectedDate(state) {
+    var dates = Object.keys(state.confrontos || {}).sort();
+    if (selectedDate && dates.indexOf(selectedDate) >= 0) return;
+    var today = todayStr(state);
+    if (dates.indexOf(today) >= 0) { selectedDate = today; return; }
+    var upcoming = null;
+    for (var i = 0; i < dates.length; i++) { if (dates[i] >= today) { upcoming = dates[i]; break; } }
+    selectedDate = upcoming || (dates.length ? dates[dates.length - 1] : today);
+  }
+
+  function renderRibbon(state) {
+    var confs = state.confrontos || {};
+    var dates = Object.keys(confs).sort();
+    var today = todayStr(state);
+    if (!dates.length) { els.confrontoRibbon.innerHTML = ""; return; }
+    var DOW = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    var html = "";
+    dates.forEach(function (d) {
+      var c = confs[d];
+      var r = c && c.teamA && c.teamB ? (state.results || {})[matchId(d, c.teamA, c.teamB)] : null;
+      var resolved = r && r.scoreA != null && r.scoreB != null;
+      var p = d.split("-");
+      var dt = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]));
+      var cls = "ribbon-chip";
+      if (d === selectedDate) cls += " sel";
+      if (resolved) cls += " resolved";
+      if (d === today) cls += " today";
+      html += "<button class='" + cls + "' data-date='" + d + "'>" +
+        "<span class='r-dow'>" + DOW[dt.getUTCDay()] + "</span>" +
+        "<span class='r-day'>" + (+p[2]) + (resolved ? " ✓" : "") + "</span>" +
+        "</button>";
+    });
+    els.confrontoRibbon.innerHTML = html;
+    Array.prototype.forEach.call(els.confrontoRibbon.querySelectorAll("button"), function (b) {
+      b.addEventListener("click", function () { selectedDate = b.dataset.date; renderAll(lastState); });
+    });
+  }
+
   /* ---- confronto do dia ---- */
   function renderConfronto(state, standings) {
-    var today = todayStr(state);
+    var today = selectedDate || todayStr(state);
     els.confrontoDate.textContent = "— " + fmtBR(today);
     var c = (state.confrontos || {})[today];
     var body = els.confrontoBody;
@@ -340,7 +399,8 @@
         if (win === side) card.className += " winner";
         else if (win) card.className += " loser";
       }
-      card.innerHTML =
+      var weakBadge = (c.weakSide === side) ? "<div class='underdog-tag'>🤝 underdog</div>" : "";
+      card.innerHTML = weakBadge +
         "<img class='flag-lg' src='" + flagUrl(team.code, true) + "' alt=''>" +
         "<div class='side-name'>" + team.name + "</div>" +
         "<div class='side-count'>" + pickers.length + " palpite(s)</div>" +
@@ -378,9 +438,11 @@
 
   function attemptConfrontoPick(side) {
     if (!currentUser || currentUser.admin) { showMessage("Entre com seu código de jogador primeiro.", "error"); return; }
-    var today = todayStr(lastState);
+    var today = selectedDate || todayStr(lastState);
     var c = (lastState.confrontos || {})[today];
-    if (!c) { showMessage("Não há confronto hoje.", "error"); return; }
+    if (!c) { showMessage("Não há confronto nesse dia.", "error"); return; }
+    var r = (lastState.results || {})[matchId(today, c.teamA, c.teamB)];
+    if (r && r.scoreA != null && r.scoreB != null) { showMessage("Esse confronto já foi resolvido.", "error"); return; }
     var ref = db.ref("bolao/confrontos/" + today + "/picks/" + currentUser.name);
     ref.transaction(function (cur) {
       if (cur != null) return; // already picked -> abort
@@ -570,9 +632,9 @@
         var row = document.createElement("div");
         row.className = "pool-actions";
         var b = document.createElement("button");
-        b.textContent = "Pegar p/ Time C";
-        b.title = "Trocar pelo seu Time C";
-        b.addEventListener("click", function () { poolSwap(t.code, "C"); });
+        b.textContent = "Pegar p/ Time A";
+        b.title = "Trocar pelo seu Time A";
+        b.addEventListener("click", function () { poolSwap(t.code, "A"); });
         row.appendChild(b);
         card.appendChild(row);
       }
@@ -647,6 +709,7 @@
 
   function poolSwap(inCode, slot) {
     if (!isPlayer()) { showMessage("Entre com seu código de jogador primeiro.", "error"); return; }
+    if (slot !== "A") { showMessage("Países sobrando só entram no Time A.", "error"); return; }
     var me = currentUser.name, swapped = { out: null };
     db.ref("bolao/picks").transaction(function (picks) {
       if (!picks) return;
@@ -770,7 +833,9 @@
     var date = els.admConfDate.value, a = els.admConfA.value, b = els.admConfB.value;
     if (!date) { showMessage("Escolha a data.", "error"); return; }
     if (a === b) { showMessage("Escolha dois times diferentes.", "error"); return; }
-    db.ref("bolao/confrontos/" + date).update({ teamA: a, teamB: b }, function (err) {
+    var weakInput = document.querySelector('input[name="adm-weak"]:checked');
+    var weak = weakInput ? weakInput.value : "B";
+    db.ref("bolao/confrontos/" + date).update({ teamA: a, teamB: b, weakSide: weak }, function (err) {
       showMessage(err ? "Erro: " + err.message : "Confronto de " + fmtBR(date) + " definido. ✅", err ? "error" : "success");
     });
   }
@@ -824,6 +889,7 @@
       logoutBtn: document.getElementById("logout-btn"),
       whoami: document.getElementById("who-am-i"),
       confrontoDate: document.getElementById("confronto-date"),
+      confrontoRibbon: document.getElementById("confronto-ribbon"),
       confrontoBody: document.getElementById("confronto-body"),
       banner: document.getElementById("turn-banner"),
       board: document.getElementById("players-board"),

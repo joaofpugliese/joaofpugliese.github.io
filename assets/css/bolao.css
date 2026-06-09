@@ -246,6 +246,35 @@ h2 { font-size: 1.15rem; margin: 28px 0 10px; }
 .vs { display: flex; align-items: center; font-size: 1.4rem; font-weight: 800; color: #94a3b8; }
 .confronto-status { margin: 14px 0 0; font-size: .95rem; color: #e2e8f0; }
 
+/* ---- Day ribbon ---- */
+.ribbon { display: flex; gap: 6px; overflow-x: auto; padding: 6px 0; margin: 6px 0 8px; -webkit-overflow-scrolling: touch; }
+.ribbon-chip {
+  flex: 0 0 auto; background: rgba(255,255,255,.10); color: #fff;
+  border: 1px solid rgba(255,255,255,.25); border-radius: 10px;
+  padding: 6px 10px; min-width: 50px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; line-height: 1.15;
+  font-family: inherit;
+}
+.ribbon-chip .r-dow { font-size: .68rem; text-transform: uppercase; opacity: .8; }
+.ribbon-chip .r-day { font-size: 1rem; font-weight: 700; }
+.ribbon-chip:hover { background: rgba(255,255,255,.22); }
+.ribbon-chip.sel { background: #fde047; color: #111; border-color: #fde047; }
+.ribbon-chip.today { box-shadow: 0 0 0 2px #fb923c inset; }
+.ribbon-chip.resolved { opacity: .65; }
+
+/* ---- Scoring rule note + underdog tag + admin radio ---- */
+.rule-note {
+  background: rgba(255,255,255,.08); border: 1px dashed rgba(255,255,255,.2);
+  padding: 8px 12px; border-radius: 8px; font-size: .85rem;
+  color: #e2e8f0; margin: 4px 0 12px;
+}
+.underdog-tag {
+  display: inline-block; font-size: .68rem; background: #fde047; color: #111;
+  padding: 2px 8px; border-radius: 999px; font-weight: 800; margin-bottom: 6px;
+}
+.weak-radio { display: inline-flex; gap: 10px; margin-left: 4px; align-items: center; }
+.weak-radio label { color: var(--ink); font-size: .9rem; }
+
 /* ---- Leaderboard ---- */
 #leaderboard {
   width: 100%; border-collapse: collapse; background: var(--card);
