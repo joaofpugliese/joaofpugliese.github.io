@@ -145,6 +145,10 @@
 
   function matchId(date, a, b) { return date + "_" + [a, b].sort().join("_"); }
 
+  // Picks for a confronto close once its day has begun: you may only palpitar
+  // BEFORE the confronto date (i.e. today must be strictly earlier than it).
+  function confrontoOpen(date, state) { return todayStr(state) < date; }
+
   function flagUrl(code, big) {
     return "https://flagcdn.com/" + (big ? "w40" : "w20") + "/" + code + ".png";
   }
@@ -357,6 +361,7 @@
   /* ---- confronto do dia ---- */
   function renderConfronto(state, standings) {
     var today = selectedDate || todayStr(state);
+    var pickingOpen = confrontoOpen(today, state);
     els.confrontoDate.textContent = "— " + fmtBR(today);
     var c = (state.confrontos || {})[today];
     var body = els.confrontoBody;
@@ -405,7 +410,7 @@
         "<div class='side-name'>" + team.name + "</div>" +
         "<div class='side-count'>" + pickers.length + " palpite(s)</div>" +
         (pickers.length ? "<div class='side-pickers'>" + pickers.join(", ") + "</div>" : "");
-      if (!resolved && currentUser && !currentUser.admin && !myPick) {
+      if (pickingOpen && !resolved && currentUser && !currentUser.admin && !myPick) {
         card.classList.add("clickable");
         card.addEventListener("click", function () { attemptConfrontoPick(side); });
       }
@@ -430,6 +435,8 @@
       status.textContent = "Entre com seu código para palpitar.";
     } else if (currentUser.admin) {
       status.textContent = "Admin não palpita. 🙂";
+    } else if (!pickingOpen) {
+      status.innerHTML = "⛔ <b>Palpites encerrados</b> — o dia do confronto já começou.";
     } else {
       status.textContent = "Clique no lado que você acha que vence.";
     }
@@ -441,6 +448,7 @@
     var today = selectedDate || todayStr(lastState);
     var c = (lastState.confrontos || {})[today];
     if (!c) { showMessage("Não há confronto nesse dia.", "error"); return; }
+    if (!confrontoOpen(today, lastState)) { showMessage("Palpites encerrados: o dia do confronto já começou. 🔒", "error"); return; }
     var r = (lastState.results || {})[matchId(today, c.teamA, c.teamB)];
     if (r && r.scoreA != null && r.scoreB != null) { showMessage("Esse confronto já foi resolvido.", "error"); return; }
     var ref = db.ref("bolao/confrontos/" + today + "/picks/" + currentUser.name);

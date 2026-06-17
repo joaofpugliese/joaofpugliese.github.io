@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"https://bolao-a6f50-default-rtdb.firebaseio.com/bolao.json\")",
+      "Bash(python -m json.tool)",
+      "Bash(where node *)",
+      "Bash(npm --version)",
+      "Bash(curl -s \"https://bolao-a6f50-default-rtdb.firebaseio.com/bolao/picks.json\")",
+      "Bash(curl -s \"https://bolao-a6f50-default-rtdb.firebaseio.com/bolao/confrontos.json\")",
+      "Bash(curl -s \"https://bolao-a6f50-default-rtdb.firebaseio.com/bolao/results.json\")",
+      "Bash(curl -s \"https://bolao-a6f50-default-rtdb.firebaseio.com/bolao/meta.json\")",
+      "WebFetch(domain:www.espn.com)",
+      "WebFetch(domain:cupofnations2025.com)",
+      "Bash(curl -s -X PUT \"https://bolao-a6f50-default-rtdb.firebaseio.com/bolao/results/2026-06-11_mx_za.json\" -d \"{\\\\\"date\\\\\":\\\\\"2026-06-11\\\\\",\\\\\"teamA\\\\\":\\\\\"mx\\\\\",\\\\\"teamB\\\\\":\\\\\"za\\\\\",\\\\\"scoreA\\\\\":2,\\\\\"scoreB\\\\\":0}\")",
+      "Bash(curl -s -X PUT \"https://bolao-a6f50-default-rtdb.firebaseio.com/bolao/results/2026-06-11_cz_kr.json\" -d \"{\\\\\"date\\\\\":\\\\\"2026-06-11\\\\\",\\\\\"teamA\\\\\":\\\\\"cz\\\\\",\\\\\"teamB\\\\\":\\\\\"kr\\\\\",\\\\\"scoreA\\\\\":1,\\\\\"scoreB\\\\\":2}\")",
+      "WebFetch(domain:www.olympics.com)",
+      "Bash(curl -s -X PATCH \"https://bolao-a6f50-default-rtdb.firebaseio.com/bolao/results.json\" --data-binary @\"C:/Users/joaop/AppData/Local/Temp/bolao_results_patch.json\" -o /dev/null -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(curl -s \"https://bolao-a6f50-default-rtdb.firebaseio.com/bolao/results.json?shallow=true\")",
+      "Bash(node \"C:/Users/joaop/AppData/Local/Temp/bolao_verify.mjs\")",
+      "Bash(node -e ' *)",
+      "Bash(node tools/bolao-update.mjs --catchup --dry-run)",
+      "Bash(curl -s -X DELETE \"https://bolao-a6f50-default-rtdb.firebaseio.com/bolao/results/2026-06-14_cv_de.json\" -o /dev/null -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(node tools/bolao-update.mjs --catchup)",
+      "Bash(node -e 'let s=\"\";process.stdin.on\\(\"data\",d=>s+=d\\).on\\(\"end\",\\(\\)=>{console.log\\(Object.keys\\(JSON.parse\\(s\\)\\).sort\\(\\).join\\(\"\\\\n\"\\)\\);}\\);')",
+      "PowerShell(\\(Get-TimeZone\\).Id; \\(Get-TimeZone\\).BaseUtcOffset.ToString\\(\\); \"node: \" + \\(Get-Command node\\).Source)",
+      "PowerShell(& \"d:\\\\Dropbox\\\\Websites\\\\joaofpugliese.github.io\\\\tools\\\\bolao-update.cmd\"; \"----- LOG TAIL -----\"; Get-Content \"$env:LOCALAPPDATA\\\\bolao-update.log\" -Tail 25)",
+      "Bash(node --check assets/js/bolao.js)",
+      "Bash(node --check tools/bolao-update.mjs)"
+    ]
+  }
+}
