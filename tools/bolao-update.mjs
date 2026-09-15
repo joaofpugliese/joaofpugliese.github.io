@@ -145,9 +145,15 @@ async function matchesForSpDate(target) {
       console.warn(`  ! skip (unmapped team): ${A.team.displayName} [${A.team.abbreviation}] vs ${B.team.displayName} [${B.team.abbreviation}]`);
       continue;
     }
+    const stage = e.season?.slug || "group-stage";       // group-stage | round-of-32 | ... | final
+    const winCmp = cs.find((x) => x.winner === true);     // set even for penalty/ET wins (score is level)
+    const winner = winCmp ? codeFor(winCmp.team) : null;  // null on a genuine draw
     const filed = fileDate(target, codeA, codeB);
     out.push({ date: filed, teamA: codeA, teamB: codeB, scoreA: Number(A.score), scoreB: Number(B.score),
-               label: `${A.team.displayName} ${A.score}-${B.score} ${B.team.displayName}` + (filed !== target ? `  (confronto -> ${filed})` : "") });
+               stage, winner,
+               label: `${A.team.displayName} ${A.score}-${B.score} ${B.team.displayName}`
+                 + (stage !== "group-stage" ? ` [${stage}${winner ? " W:" + winner : ""}]` : "")
+                 + (filed !== target ? `  (confronto -> ${filed})` : "") });
   }
   return out;
 }
@@ -165,7 +171,8 @@ async function main() {
     for (const m of matches) {
       const id = matchId(m.date, m.teamA, m.teamB);
       if (existing[id] && !FORCE) { console.log(`${date}: ${m.label}  ->  ${id}  (already in DB, skip)`); skipped++; continue; }
-      payload[id] = { date: m.date, teamA: m.teamA, teamB: m.teamB, scoreA: m.scoreA, scoreB: m.scoreB };
+      payload[id] = { date: m.date, teamA: m.teamA, teamB: m.teamB, scoreA: m.scoreA, scoreB: m.scoreB, stage: m.stage };
+      if (m.winner) payload[id].winner = m.winner;
       console.log(`${date}: ${m.label}  ->  ${id}  (NEW)`);
       n++;
     }

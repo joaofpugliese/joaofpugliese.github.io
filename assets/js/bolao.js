@@ -12,7 +12,13 @@
  * Firebase data model (under /bolao):
  *   picks/<teamCode>            = { player, slot, order }
  *   confrontos/<YYYY-MM-DD>     = { teamA, teamB, picks: { <player>: "A"|"B" } }
- *   results/<matchId>           = { date, teamA, teamB, scoreA, scoreB }
+ *   results/<matchId>           = { date, teamA, teamB, scoreA, scoreB,
+ *                                   stage?, winner? }
+ *       stage  = ESPN season slug ("group-stage" | "round-of-32" | "round-of-16"
+ *                | "quarterfinals" | "semifinals" | "final" | "3rd-place-match").
+ *                Absent/"group-stage" => slot points; knockout => STAGE_PTS.
+ *       winner = team code that advanced (authoritative for penalty/ET results
+ *                where the score is level). Absent => derive winner from score.
  *   meta/today                  = "YYYY-MM-DD"   (admin date override for tests)
  * matchId = "<date>_<codeA>_<codeB>" with the two team codes sorted.
  * =========================================================================== */
@@ -83,6 +89,15 @@
 
   var SLOTS = ["C", "B", "A"];
   var SLOT_PTS = { C: 4, B: 2, A: 3 };
+  // Knockout wins score by STAGE (given to the winning team's owner), replacing
+  // the group-stage slot value once the bracket starts. Winning the final =
+  // champion = 15 (this supersedes any "round of 2" value). The 3rd-place match
+  // is worth nothing. Stage keys match ESPN's season slugs written by the daily
+  // updater; a result with no stage (or "group-stage") uses SLOT_PTS instead.
+  var STAGE_PTS = {
+    "round-of-32": 4, "round-of-16": 5, "quarterfinals": 6,
+    "semifinals": 10, "final": 15, "3rd-place-match": 0
+  };
   var TOTAL_PICKS = PLAYERS.length * SLOTS.length;
   var CONFRONTO_BASE = 5;
   var TOURNEY_START = "2026-06-11"; // week buckets are 7-day blocks from here
@@ -221,7 +236,10 @@
       weekPts[wk][player] += pts;
     }
 
-    // 1) Draft points — per match win, any stage.
+    // 1) Draft points — per match win. Group stage pays the slot value; the
+    //    knockout rounds pay by stage (see STAGE_PTS). The winner comes from the
+    //    stored `winner` code when present (authoritative for matches decided on
+    //    penalties/extra time, where the score is level), else from the score.
     Object.keys(results).forEach(function (id) {
       var r = results[id];
       if (!r || r.scoreA == null || r.scoreB == null) return;
@@ -229,10 +247,10 @@
       [r.teamA, r.teamB].forEach(function (code) {
         if (draftByTeam[code]) markActive(draftByTeam[code].player, wk);
       });
-      var winner = r.scoreA > r.scoreB ? r.teamA : (r.scoreB > r.scoreA ? r.teamB : null);
-      if (winner && draftByTeam[winner]) {
-        addPts(draftByTeam[winner].player, SLOT_PTS[draftByTeam[winner].slot], r.date);
-      }
+      var winner = r.winner || (r.scoreA > r.scoreB ? r.teamA : (r.scoreB > r.scoreA ? r.teamB : null));
+      if (!winner || !draftByTeam[winner]) return;
+      var pts = STAGE_PTS.hasOwnProperty(r.stage) ? STAGE_PTS[r.stage] : SLOT_PTS[draftByTeam[winner].slot];
+      addPts(draftByTeam[winner].player, pts, r.date);
     });
 
     // 2) Confronto points — pot is always 5; on draw, +3 split for weakSide pickers
@@ -249,7 +267,7 @@
       var r = results[matchId(date, c.teamA, c.teamB)];
       if (!r || r.scoreA == null || r.scoreB == null) return; // not played yet
 
-      var winnerCode = r.scoreA > r.scoreB ? r.teamA : (r.scoreB > r.scoreA ? r.teamB : null);
+      var winnerCode = r.winner || (r.scoreA > r.scoreB ? r.teamA : (r.scoreB > r.scoreA ? r.teamB : null));
       if (winnerCode == null) {
         // DRAW — split 3 pts among weakSide pickers, 2 pts among the other side.
         var weak = (c.weakSide === "A" || c.weakSide === "B") ? c.weakSide : null;
