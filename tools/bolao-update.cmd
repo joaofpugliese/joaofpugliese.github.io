@@ -9,5 +9,5 @@ cd /d "%~dp0.."
 set "LOG=%LOCALAPPDATA%\bolao-update.log"
 echo.>> "%LOG%"
 echo ===== %DATE% %TIME% =====>> "%LOG%"
-"C:\Program Files\nodejs\node.exe" "tools\bolao-update.mjs" --catchup >> "%LOG%" 2>&1
+"C:\Program Files\nodejs\node.exe" "tools\bolao-update.mjs" --catchup --today >> "%LOG%" 2>&1
 echo (exit code %ERRORLEVEL%)>> "%LOG%"
