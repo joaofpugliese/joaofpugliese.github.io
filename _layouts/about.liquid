@@ -72,31 +72,63 @@ layout: default
     {% endif %}
 
     <!-- Working papers -->
-    {% if page.working_papers %}    
+    {% if page.working_papers %}
+    <style>
+      .paper-btn { display: inline-block; padding: 5px 10px; border: 1px solid #ccc; border-radius: 5px; text-decoration: none; cursor: pointer; font-size: 0.9em; }
+      .paper-abstract { display: none; margin-top: 10px; padding: 10px 12px; border-left: 3px solid #ccc; font-size: 0.95em; text-align: justify; }
+      .paper-abstract.open { display: block; }
+    </style>
     <h2 class="section-spacing">Working papers</h2>
     <ul>
       <li style="margin-bottom: 20px;">
-        <strong>Blue spoons: sparking communication about appropriate technology use</strong> 
-        <br>September 2022  
+        <strong>Consumer Misperceptions and Redistribution in Financial Products: Evidence from Brazilian Consórcios</strong> [Job Market Paper]
+        <br>(with Otávio Braga and Lucas Iten Teixeira)
+      </li>
+      <li style="margin-bottom: 20px;">
+        <strong>Inflation Beliefs and the Indexation of Household Debt</strong>
+        <br>(with Otávio Braga and Lucas Iten Teixeira)
+      </li>
+      <li style="margin-bottom: 20px;">
+        <strong>Good News and Bad News: The Effects of Consuming Professional News Outlets During the 2022 Brazilian Elections</strong><br>
+        <a class="paper-btn" role="button" onclick="document.getElementById('abs-goodnews').classList.toggle('open')">Abstract</a>
+        <div id="abs-goodnews" class="paper-abstract">
+          We study the effects of direct professional news consumption in a randomized experiment with 1,658 voters during Brazil’s 2022 elections. Participants interested in subscriptions chose among five newspapers. Offering three-month free subscriptions and reading incentives shifted consumption from social media to newspapers without increasing total news consumption. Treatment improved news knowledge and trust in professional media, with evidence of stronger support for democratic norms and no effect on affective polarization. Effects on trust and democratic attitudes were concentrated among non-left-wing participants. Despite the positive overall effects of consumption, only three participants subscribed to newspapers after the intervention.
+        </div>
+      </li>
+      <li style="margin-bottom: 20px;">
+        <strong>Blue spoons: sparking communication about appropriate technology use</strong>
+        <br>September 2022
         <br>(with Arun Chandrasekhar, Esther Duflo, Michael Kremer, Jon Robinson, and Frank Schilbach)<br>
-        <a href="assets/pdf/CDKPRS.pdf" class="pdf-link" style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 5px; text-decoration: none;">PDF</a>
+        <a class="paper-btn" role="button" onclick="document.getElementById('abs-bluespoons').classList.toggle('open')">Abstract</a>
+        <a href="assets/pdf/CDKPRS.pdf" class="pdf-link paper-btn">PDF</a>
+        <div id="abs-bluespoons" class="paper-abstract">
+          An enduring puzzle regarding technology adoption in developing countries is that new technologies often diffuse slowly through the social network. Two of the key predictions of the canonical epidemiological model of technology diffusion are that forums to share information and higher returns to technology should both spur social transmission. We design a large-scale experiment to test these predictions among farmers in Western Kenya, and we fail to find support for either. However, in the same context, we introduce a technology that diffuses very fast: a simple kitchen spoon (painted in blue) to measure out how much fertilizer to use. We develop a model that explains both the failure of the standard approaches and the surprising success of this new technology. The core idea of the model is that not all information is reliable, and farmers are reluctant to develop a reputation of passing along false information. The model and data suggest that there is value in developing simple, transparent technologies to facilitate communication.
+        </div>
       </li>
       <li style="margin-bottom: 20px;">
         <strong>Can income targeting be explained by dynamic sample selection?</strong>
         <br>July 2021
         <br>(with Pedro Bessone)<br>
-        <a href="assets/pdf/BP.pdf" class="pdf-link" style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 5px; text-decoration: none;">PDF</a>
-      </li>    
+        <a class="paper-btn" role="button" onclick="document.getElementById('abs-income').classList.toggle('open')">Abstract</a>
+        <a href="assets/pdf/BP.pdf" class="pdf-link paper-btn">PDF</a>
+        <div id="abs-income" class="paper-abstract">
+          In neoclassical models, transitory income shocks should not affect labor supply. This prediction has often been rejected empirically in favor of theories featuring reference-dependent preferences. We show that apparent negative daily income effects can be generated in a neoclassical model of labor supply by dynamic selection, where wage variation causes differential attrition throughout workers’ shifts. Using data from an RCT with experimental variation in wages and fine measures of labor supply, we show that estimates of negative income effects are an artifact of dynamic selection in this setting, providing a neoclassical explanation to the findings of the income-targeting literature.
+        </div>
+      </li>
       <!-- Add more working papers as needed -->
     </ul>
     {% endif %}
 
     <!-- Work in Progress -->
-    {% if page.work_in_progress %}        
-    <h2 class="section-spacing">Work in Progress</h2>
+    {% if page.work_in_progress %}
+    <h2 class="section-spacing">Work in progress</h2>
     <ul>
-      <li>Work in Progress 1: Description of work in progress 1.</li>
-      <li>Work in Progress 2: Description of work in progress 2.</li>
+      <li style="margin-bottom: 20px;">
+        <strong>The First Mile of Accountability: The Roles of Citizen Values and Knowledge</strong>
+        <br>March 2026
+        <br>(with Leon V. Eliezer and Anirudh Sankar)
+        <br>Funded by the Weiss Fund Pilot Grant
+      </li>
       <!-- Add more work in progress as needed -->
     </ul>
     {% endif %}
