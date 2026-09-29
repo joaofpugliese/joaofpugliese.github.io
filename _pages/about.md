@@ -19,7 +19,7 @@ I am a Ph.D. candidate in Economics at Stanford University. I obtained my underg
 
 My main research fields are development economics and political economy. I seek to understand how agents acquire, process, and share information, and how information shapes economic and political outcomes. Currently, my research explores two main topics: media markets and accountability, and savings and credit markets.
 
-**I will be in the 2026-2027 job market.**
+**I am on the 2026-2027 job market.**
 
 Email: jfpugli@stanford.edu
 
