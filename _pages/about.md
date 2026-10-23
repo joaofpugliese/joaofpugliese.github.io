@@ -8,7 +8,8 @@ profile:
   align: left
   image: joao_JMP.png
   image_circular: false # crops the image to make it circular
-  more_info: 
+  more_info: >
+    <p style="font-size: 0.8em; color: #888; margin-top: 6px;">Photo by Vanessa Coleman</p>
 news: false # includes a list of news items
 publications: false
 working_papers: true
@@ -20,6 +21,8 @@ I am a Ph.D. candidate in Economics at Stanford University. I obtained my underg
 My main research fields are development economics and political economy. I seek to understand how agents acquire, process, and share information, and how information shapes economic and political outcomes. Currently, my research explores two main topics: media markets and accountability, and savings and credit markets.
 
 **I am on the 2026-2027 job market.**
+
+**PhD Committee:** [Arun Chandrasekhar](https://stanford.edu/~arungc/), [Matthew Gentzkow](https://matthewgentzkow.com/), and [Melanie Morten](https://stanford.edu/~memorten/Melanie_Morten.html)
 
 Email: jfpugli@stanford.edu
 
