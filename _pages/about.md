@@ -9,7 +9,7 @@ profile:
   image: joao_JMP.png
   image_circular: false # crops the image to make it circular
   more_info: >
-    <p style="font-size: 0.8em; color: #888; margin-top: 6px;">Photo by Vanessa Coleman</p>
+    <div style="text-align: center; margin-top: -10px;"><p style="display: block; font-size: 0.8em; color: #888; margin: 0;">Photo by Vanessa Coleman</p></div>
 news: false # includes a list of news items
 publications: false
 working_papers: true

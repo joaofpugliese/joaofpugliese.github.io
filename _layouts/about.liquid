@@ -77,14 +77,19 @@ layout: default
       .paper-btn { display: inline-block; padding: 5px 10px; border: 1px solid #ccc; border-radius: 5px; text-decoration: none; cursor: pointer; font-size: 0.9em; }
       .paper-abstract { display: none; margin-top: 10px; padding: 10px 12px; border-left: 3px solid #ccc; font-size: 0.95em; text-align: justify; }
       .paper-abstract.open { display: block; }
+      a.paper-title { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+      a.paper-title:hover { color: #1a73e8; }
     </style>
     <h2 class="section-spacing">Working papers</h2>
     <ul>
       <li style="margin-bottom: 20px;">
-        <strong>Consumer Misperceptions and Redistribution in Financial Products: Evidence from Brazilian Consórcios</strong>
+        <strong><a href="assets/pdf/jmp.pdf" class="paper-title">Consumer Misperceptions and Redistribution in Financial Products: Evidence from Brazilian Consórcios</a></strong>
         <br><strong style="color: #1a73e8;">[Job Market Paper]</strong> October 2026
-        <br>(with Otávio Braga and Lucas Iten Teixeira)
-        <br><em>[Draft coming soon!]</em>
+        <br>(with Otávio Braga and Lucas Iten Teixeira)<br>
+        <a href="assets/pdf/jmp.pdf" class="pdf-link paper-btn">PDF</a>
+        <div id="abs-jmp" class="paper-abstract open">
+          Financial innovations may expand access to credit, but also introduce complexity that leads to consumer losses and redistribution across consumers. We study consórcios, a group savings-and-credit product accounting for 25% of new vehicle credit in Brazil. Consumers pool monthly payments and receive funding through lotteries or bids, allowing consumers with liquidity to obtain funding earlier at the expense of others. Using administrative data covering 59 million contracts and a survey of 1,296 consumers, we document four facts. First, 81% of contracts lose money relative to saving and borrowing in the market. Second, losses are regressive. Third, firms’ allocation decisions favor bidding, which can improve expected returns, while consumers waiting for lotteries face long waits and large expected losses. Fourth, consumers overestimate chances of receiving funding early through lotteries. These findings challenge explanations of participation in group savings products based on commitment and suggest that misperceptions about allocation probabilities may help sustain regressive contract designs. In a randomized information experiment, disclosing true lottery probabilities increases liquidity-constrained consumers’ willingness to forgo a real bonus for access to groups with more lotteries, but has no corresponding effect among consumers able to bid. Our findings show that correcting misperceptions can differentially affect demand across consumer types, with possible implications for market composition and redistribution.
+        </div>
       </li>
       <li style="margin-bottom: 20px;">
         <strong>Inflation Beliefs and the Indexation of Household Debt</strong>
@@ -92,7 +97,7 @@ layout: default
         <br>(with Otávio Braga and Lucas Iten Teixeira)
       </li>
       <li style="margin-bottom: 20px;">
-        <strong>Good News and Bad News: The Effects of Consuming Professional News Outlets During the 2022 Brazilian Elections</strong>
+        <strong><a href="assets/pdf/CP_news_2026.pdf" class="paper-title">Good News and Bad News: The Effects of Consuming Professional News Outlets During the 2022 Brazilian Elections</a></strong>
         <br>September 2026
         <br>(with Caio Castro)<br>
         <a class="paper-btn" role="button" onclick="document.getElementById('abs-goodnews').classList.toggle('open')">Abstract</a>
@@ -103,7 +108,7 @@ layout: default
         </div>
       </li>
       <li style="margin-bottom: 20px;">
-        <strong>Blue Spoons: Sparking Communication about Appropriate Technology Use</strong>
+        <strong><a href="assets/pdf/CDKPRS.pdf" class="paper-title">Blue Spoons: Sparking Communication about Appropriate Technology Use</a></strong>
         <br>September 2022
         <br>(with Arun Chandrasekhar, Esther Duflo, Michael Kremer, Jon Robinson, and Frank Schilbach)<br>
         <a class="paper-btn" role="button" onclick="document.getElementById('abs-bluespoons').classList.toggle('open')">Abstract</a>
@@ -114,7 +119,7 @@ layout: default
         </div>
       </li>
       <li style="margin-bottom: 20px;">
-        <strong>Can Income Targeting Be Explained by Dynamic Sample Selection?</strong>
+        <strong><a href="assets/pdf/BP.pdf" class="paper-title">Can Income Targeting Be Explained by Dynamic Sample Selection?</a></strong>
         <br>July 2021
         <br>(with Pedro Bessone)<br>
         <a class="paper-btn" role="button" onclick="document.getElementById('abs-income').classList.toggle('open')">Abstract</a>
